@@ -58,15 +58,14 @@ const INITIAL_PROCESSES: Process[] = [
 ];
 
 export default function App() {
+  const apiUrl = "http://localhost:8080/simulate";
+
   // Simulator Configurations
   const [processes, setProcesses] = useState<Process[]>(INITIAL_PROCESSES);
   const [algorithm, setAlgorithm] = useState<AlgorithmType>("RR");
   const [quantum, setQuantum] = useState<number>(2);
   const [overloadTime, setOverloadTime] = useState<number>(1);
   const [isOverloadEnabled, setIsOverloadEnabled] = useState<boolean>(true);
-  const [apiUrl, setApiUrl] = useState<string>(
-    "http://localhost:8080/simulate",
-  );
 
   // Playback Control States
   const [currentTime, setCurrentTime] = useState<number>(0);
@@ -399,19 +398,6 @@ export default function App() {
               </svg>
               Configurações Globais
             </h2>
-
-            <div className="form-group">
-              <label htmlFor="api-url-input">URL da API do Simulador</label>
-              <input
-                id="api-url-input"
-                type="text"
-                value={apiUrl}
-                onChange={(e) => setApiUrl(e.target.value)}
-                className="select-control font-mono"
-                style={{ fontSize: "13px" }}
-                placeholder="http://localhost:8080/simulate"
-              />
-            </div>
 
             <div className="form-group">
               <label htmlFor="algorithm-select">
