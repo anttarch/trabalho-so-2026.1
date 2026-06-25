@@ -1,7 +1,7 @@
 export type AlgorithmType = "FIFO" | "SJF" | "SRTF" | "RR" | "PRIOnp" | "PRIOp";
 
 export interface Process {
-  id: string;
+  id: number;
   name: string;
   arrivalTime: number;
   burstTime: number;
@@ -20,30 +20,45 @@ export interface ProcessState {
 export interface SimulationStep {
   time: number;
   cpuState: "idle" | "running" | "overload";
-  runningProcessId: string | null;
-  readyQueue: string[];
-  processStates: Record<string, ProcessState>;
+  runningProcessId: number | null;
+  readyQueue: number[];
+  processStates: Record<number, ProcessState>;
   log: string;
+}
+
+export interface ProcessStat {
+  id: number;
+  name: string;
+  arrivalTime: number;
+  burstTime: number;
+  finishTime: number;
+  turnaroundTime: number;
+  waitingTime: number;
+  responseTime: number;
 }
 
 export interface SimulationResult {
   timeline: SimulationStep[];
-  processStats: Record<
-    string,
-    {
-      id: string;
-      name: string;
-      arrivalTime: number;
-      burstTime: number;
-      finishTime: number;
-      turnaroundTime: number;
-      waitingTime: number;
-      responseTime: number;
-    }
-  >;
+  processStats: Record<number, ProcessStat>;
   avgTurnaround: number;
   avgWaiting: number;
   avgResponse: number;
+}
+
+/**
+ * Creates a default fallback/initial process statistics structure.
+ */
+export function getDefaultProcessStat(p: Process): ProcessStat {
+  return {
+    id: p.id,
+    name: p.name,
+    arrivalTime: p.arrivalTime,
+    burstTime: p.burstTime,
+    finishTime: p.arrivalTime + p.burstTime,
+    turnaroundTime: p.burstTime,
+    waitingTime: 0,
+    responseTime: 0,
+  };
 }
 
 /**
@@ -87,22 +102,27 @@ export async function fetchSimulationFromExternal(
   const data = await response.json();
 
   // The external service must return:
+  // - timeline: Array of identifiers (names/IDs, e.g., ["P1", 2, "overload", "idle"])
+  // - processStats: array of process metrics objects
   interface BackendProcessStat {
-    id: string;
+    id: number;
     waitingTime: number;
     turnaroundTime: number;
     responseTime: number;
     finishTime: number;
   }
 
-  const backendTimeline = (data.timeline || []) as string[];
+  const backendTimeline = (data.timeline || []) as Array<string | number>;
   const backendProcessStats = (data.processStats || []) as BackendProcessStat[];
 
   // Standardize process stats into a map keyed by process.id
-  const processStatsMap: Record<string, BackendProcessStat> = {};
+  const processStatsMap: Record<number, BackendProcessStat> = {};
   backendProcessStats.forEach((stat) => {
-    if (stat && stat.id) {
-      processStatsMap[stat.id] = stat;
+    if (stat && stat.id !== undefined) {
+      const numId = Number(stat.id);
+      if (!isNaN(numId)) {
+        processStatsMap[numId] = stat;
+      }
     }
   });
 
@@ -113,40 +133,53 @@ export async function fetchSimulationFromExternal(
   for (let t = 0; t < totalSteps; t++) {
     const rawCpuState = backendTimeline[t];
     let cpuState: "idle" | "running" | "overload";
-    let runningProcessId: string | null = null;
+    let runningProcessId: number | null = null;
 
     if (rawCpuState === "overload" || rawCpuState === "sobrecarga") {
       cpuState = "overload";
     } else if (
-      !rawCpuState ||
+      rawCpuState === null ||
+      rawCpuState === undefined ||
       rawCpuState === "idle" ||
       rawCpuState === "ocioso"
     ) {
       cpuState = "idle";
     } else {
       cpuState = "running";
-      // Match raw CPU identifier (e.g., P1, p1) with processes
+      // Match raw CPU identifier (e.g., process name, process ID)
+      const rawStr = String(rawCpuState).toLowerCase();
       const matchedProc = processes.find(
         (p) =>
-          p.name.toLowerCase() === rawCpuState.toLowerCase() ||
-          p.id.toLowerCase() === rawCpuState.toLowerCase(),
+          p.name.toLowerCase() === rawStr ||
+          String(p.id).toLowerCase() === rawStr,
       );
-      runningProcessId = matchedProc ? matchedProc.id : rawCpuState;
+
+      if (matchedProc) {
+        runningProcessId = matchedProc.id;
+      } else {
+        // Fallback to direct number parsing of CPU identifier
+        const parsedNum = Number(rawCpuState);
+        if (!isNaN(parsedNum)) {
+          runningProcessId = parsedNum;
+        }
+      }
     }
 
     // Compute process states at second t
-    const processStates: Record<string, ProcessState> = {};
+    const processStates: Record<number, ProcessState> = {};
     processes.forEach((p) => {
       // remainingTime at start of second t = burstTime - times run in intervals [0, t)
       let ticksRunBefore = 0;
       for (let prevT = 0; prevT < t; prevT++) {
         const prevCpu = backendTimeline[prevT];
-        if (
-          prevCpu &&
-          (prevCpu.toLowerCase() === p.name.toLowerCase() ||
-            prevCpu.toLowerCase() === p.id.toLowerCase())
-        ) {
-          ticksRunBefore++;
+        if (prevCpu) {
+          const prevCpuStr = String(prevCpu).toLowerCase();
+          if (
+            prevCpuStr === p.name.toLowerCase() ||
+            prevCpuStr === String(p.id).toLowerCase()
+          ) {
+            ticksRunBefore++;
+          }
         }
       }
       const remainingTime = Math.max(0, p.burstTime - ticksRunBefore);
@@ -162,8 +195,6 @@ export async function fetchSimulationFromExternal(
         if (runningProcessId === p.id) {
           state = "running";
         } else {
-          // If CPU is in overload and this is the target process, it is in overload
-          // For simplicity, we flag as ready unless it's running
           state = "ready";
         }
       }
@@ -174,13 +205,20 @@ export async function fetchSimulationFromExternal(
         if (prevT >= p.arrivalTime) {
           const prevCpu = backendTimeline[prevT];
           const isFinishedBefore = finishTime !== -1 && prevT >= finishTime;
-          if (
-            !isFinishedBefore &&
-            (!prevCpu ||
-              (prevCpu.toLowerCase() !== p.name.toLowerCase() &&
-                prevCpu.toLowerCase() !== p.id.toLowerCase()))
-          ) {
-            waitingTime++;
+          if (!isFinishedBefore) {
+            let wasRunning = false;
+            if (prevCpu) {
+              const prevCpuStr = String(prevCpu).toLowerCase();
+              if (
+                prevCpuStr === p.name.toLowerCase() ||
+                prevCpuStr === String(p.id).toLowerCase()
+              ) {
+                wasRunning = true;
+              }
+            }
+            if (!wasRunning) {
+              waitingTime++;
+            }
           }
         }
       }
@@ -198,13 +236,15 @@ export async function fetchSimulationFromExternal(
       let firstRunTime = -1;
       for (let prevT = 0; prevT < totalSteps; prevT++) {
         const prevCpu = backendTimeline[prevT];
-        if (
-          prevCpu &&
-          (prevCpu.toLowerCase() === p.name.toLowerCase() ||
-            prevCpu.toLowerCase() === p.id.toLowerCase())
-        ) {
-          firstRunTime = prevT;
-          break;
+        if (prevCpu) {
+          const prevCpuStr = String(prevCpu).toLowerCase();
+          if (
+            prevCpuStr === p.name.toLowerCase() ||
+            prevCpuStr === String(p.id).toLowerCase()
+          ) {
+            firstRunTime = prevT;
+            break;
+          }
         }
       }
       const responseTime =
@@ -220,7 +260,7 @@ export async function fetchSimulationFromExternal(
     });
 
     // Reconstruct ready queue
-    const readyQueue: string[] = [];
+    const readyQueue: number[] = [];
     processes.forEach((p) => {
       const pState = processStates[p.id];
       if (pState && pState.state === "ready") {
@@ -232,7 +272,7 @@ export async function fetchSimulationFromExternal(
     let log: string;
     if (cpuState === "running") {
       const runProc = processes.find((p) => p.id === runningProcessId);
-      log = `Processo ${runProc?.name || runningProcessId} em execução`;
+      log = `Processo ${runProc?.name || "ID " + runningProcessId} em execução`;
     } else if (cpuState === "overload") {
       log = "Sobrecarga de CPU (Troca de Contexto)";
     } else {
@@ -250,17 +290,27 @@ export async function fetchSimulationFromExternal(
   }
 
   // Map process stats
-  const processStatsResult: SimulationResult["processStats"] = {};
+  const processStatsResult: Record<number, ProcessStat> = {};
   processes.forEach((p) => {
+    const fallbackStat = getDefaultProcessStat(p);
     const stat = processStatsMap[p.id] || ({} as BackendProcessStat);
+
     const waitingTime =
-      typeof stat.waitingTime === "number" ? stat.waitingTime : 0;
+      typeof stat.waitingTime === "number"
+        ? stat.waitingTime
+        : fallbackStat.waitingTime;
     const turnaroundTime =
-      typeof stat.turnaroundTime === "number" ? stat.turnaroundTime : 0;
+      typeof stat.turnaroundTime === "number"
+        ? stat.turnaroundTime
+        : fallbackStat.turnaroundTime;
     const responseTime =
-      typeof stat.responseTime === "number" ? stat.responseTime : 0;
+      typeof stat.responseTime === "number"
+        ? stat.responseTime
+        : fallbackStat.responseTime;
     const finishTime =
-      typeof stat.finishTime === "number" ? stat.finishTime : 0;
+      typeof stat.finishTime === "number"
+        ? stat.finishTime
+        : fallbackStat.finishTime;
 
     processStatsResult[p.id] = {
       id: p.id,

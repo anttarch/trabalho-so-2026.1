@@ -24,7 +24,7 @@ const PRESET_COLORS = [
 
 const INITIAL_PROCESSES: Process[] = [
   {
-    id: "p1",
+    id: 1,
     name: "P1",
     arrivalTime: 0,
     burstTime: 5,
@@ -32,7 +32,7 @@ const INITIAL_PROCESSES: Process[] = [
     color: PRESET_COLORS[0],
   },
   {
-    id: "p2",
+    id: 2,
     name: "P2",
     arrivalTime: 2,
     burstTime: 3,
@@ -40,7 +40,7 @@ const INITIAL_PROCESSES: Process[] = [
     color: PRESET_COLORS[1],
   },
   {
-    id: "p3",
+    id: 3,
     name: "P3",
     arrivalTime: 4,
     burstTime: 2,
@@ -48,7 +48,7 @@ const INITIAL_PROCESSES: Process[] = [
     color: PRESET_COLORS[2],
   },
   {
-    id: "p4",
+    id: 4,
     name: "P4",
     arrivalTime: 6,
     burstTime: 4,
@@ -165,9 +165,13 @@ export default function App() {
   // Handle Process modifications
   const handleAddProcess = () => {
     const nextIndex = processes.length + 1;
+    const maxId = processes.reduce(
+      (max, p) => ((p.id as number) > max ? (p.id as number) : max),
+      0,
+    );
     const color = PRESET_COLORS[(nextIndex - 1) % PRESET_COLORS.length];
     const newProc: Process = {
-      id: `p_${Date.now()}`,
+      id: maxId + 1,
       name: `P${nextIndex}`,
       arrivalTime: Math.max(0, Math.min(20, Math.floor(Math.random() * 8))),
       burstTime: Math.max(1, Math.min(10, Math.floor(Math.random() * 7) + 2)),
@@ -177,7 +181,7 @@ export default function App() {
     setProcesses([...processes, newProc]);
   };
 
-  const handleRemoveProcess = (id: string) => {
+  const handleRemoveProcess = (id: number) => {
     if (processes.length <= 1) return;
     const updated = processes
       .filter((p) => p.id !== id)
@@ -189,7 +193,7 @@ export default function App() {
   };
 
   const handleUpdateProcess = (
-    id: string,
+    id: number,
     field: keyof Process,
     value: string | number,
   ) => {
@@ -216,7 +220,7 @@ export default function App() {
   const handleRandomize = () => {
     const count = Math.floor(Math.random() * 3) + 4; // 4 to 6 processes
     const randomized: Process[] = Array.from({ length: count }, (_, idx) => ({
-      id: `p_${idx}_${Date.now()}`,
+      id: idx + 1,
       name: `P${idx + 1}`,
       arrivalTime: Math.floor(Math.random() * 8),
       burstTime: Math.floor(Math.random() * 7) + 2, // 2s to 8s
@@ -229,7 +233,7 @@ export default function App() {
   const handleLoadClassicPreset = () => {
     setProcesses([
       {
-        id: "p1",
+        id: 1,
         name: "P1",
         arrivalTime: 0,
         burstTime: 6,
@@ -237,7 +241,7 @@ export default function App() {
         color: PRESET_COLORS[0],
       },
       {
-        id: "p2",
+        id: 2,
         name: "P2",
         arrivalTime: 2,
         burstTime: 3,
@@ -245,7 +249,7 @@ export default function App() {
         color: PRESET_COLORS[1],
       },
       {
-        id: "p3",
+        id: 3,
         name: "P3",
         arrivalTime: 4,
         burstTime: 1,
@@ -253,7 +257,7 @@ export default function App() {
         color: PRESET_COLORS[2],
       },
       {
-        id: "p4",
+        id: 4,
         name: "P4",
         arrivalTime: 5,
         burstTime: 4,
@@ -271,7 +275,7 @@ export default function App() {
     // Shows FCFS convoy effect vs SJF
     setProcesses([
       {
-        id: "p1",
+        id: 1,
         name: "P1",
         arrivalTime: 0,
         burstTime: 12,
@@ -279,7 +283,7 @@ export default function App() {
         color: PRESET_COLORS[0],
       },
       {
-        id: "p2",
+        id: 2,
         name: "P2",
         arrivalTime: 1,
         burstTime: 2,
@@ -287,7 +291,7 @@ export default function App() {
         color: PRESET_COLORS[1],
       },
       {
-        id: "p3",
+        id: 3,
         name: "P3",
         arrivalTime: 1,
         burstTime: 2,
@@ -302,7 +306,7 @@ export default function App() {
   const handleLoadPriorityPreset = () => {
     setProcesses([
       {
-        id: "p1",
+        id: 1,
         name: "P1",
         arrivalTime: 0,
         burstTime: 5,
@@ -310,7 +314,7 @@ export default function App() {
         color: PRESET_COLORS[0],
       },
       {
-        id: "p2",
+        id: 2,
         name: "P2",
         arrivalTime: 1,
         burstTime: 4,
@@ -318,7 +322,7 @@ export default function App() {
         color: PRESET_COLORS[1],
       },
       {
-        id: "p3",
+        id: 3,
         name: "P3",
         arrivalTime: 2,
         burstTime: 6,
@@ -326,7 +330,7 @@ export default function App() {
         color: PRESET_COLORS[2],
       },
       {
-        id: "p4",
+        id: 4,
         name: "P4",
         arrivalTime: 3,
         burstTime: 2,
