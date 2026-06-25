@@ -87,25 +87,24 @@ export async function fetchSimulationFromExternal(
   const data = await response.json();
 
   // The external service must return:
-  // - timeline: string[] (e.g. ["P1", "P1", "overload", "P2", "idle"])
-  // - processStats: array or object with process metrics
-  // - avgTurnaround, avgWaiting, avgResponse (optional, calculated if not provided)
+  interface BackendProcessStat {
+    id: string;
+    waitingTime: number;
+    turnaroundTime: number;
+    responseTime: number;
+    finishTime: number;
+  }
+
   const backendTimeline = (data.timeline || []) as string[];
-  const backendProcessStats = data.processStats || {};
+  const backendProcessStats = (data.processStats || []) as BackendProcessStat[];
 
   // Standardize process stats into a map keyed by process.id
-  const processStatsMap: Record<string, any> = {};
-  if (Array.isArray(backendProcessStats)) {
-    backendProcessStats.forEach((stat: any) => {
-      if (stat && stat.id) {
-        processStatsMap[stat.id] = stat;
-      }
-    });
-  } else if (backendProcessStats && typeof backendProcessStats === "object") {
-    Object.keys(backendProcessStats).forEach((key) => {
-      processStatsMap[key] = backendProcessStats[key];
-    });
-  }
+  const processStatsMap: Record<string, BackendProcessStat> = {};
+  backendProcessStats.forEach((stat) => {
+    if (stat && stat.id) {
+      processStatsMap[stat.id] = stat;
+    }
+  });
 
   const timeline: SimulationStep[] = [];
   const totalSteps = backendTimeline.length;
@@ -152,7 +151,7 @@ export async function fetchSimulationFromExternal(
       }
       const remainingTime = Math.max(0, p.burstTime - ticksRunBefore);
 
-      const stat = processStatsMap[p.id] || {};
+      const stat = processStatsMap[p.id] || ({} as BackendProcessStat);
       const finishTime =
         typeof stat.finishTime === "number" ? stat.finishTime : -1;
 
@@ -253,7 +252,7 @@ export async function fetchSimulationFromExternal(
   // Map process stats
   const processStatsResult: SimulationResult["processStats"] = {};
   processes.forEach((p) => {
-    const stat = processStatsMap[p.id] || {};
+    const stat = processStatsMap[p.id] || ({} as BackendProcessStat);
     const waitingTime =
       typeof stat.waitingTime === "number" ? stat.waitingTime : 0;
     const turnaroundTime =
@@ -275,31 +274,25 @@ export async function fetchSimulationFromExternal(
     };
   });
 
-  // Calculate averages if backend doesn't supply them
+  // Calculate averages entirely on the client side
   const validProcs = processes.length || 1;
   const avgTurnaround =
-    typeof data.avgTurnaround === "number"
-      ? data.avgTurnaround
-      : Object.values(processStatsResult).reduce(
-          (sum, s) => sum + s.turnaroundTime,
-          0,
-        ) / validProcs;
+    Object.values(processStatsResult).reduce(
+      (sum, s) => sum + s.turnaroundTime,
+      0,
+    ) / validProcs;
 
   const avgWaiting =
-    typeof data.avgWaiting === "number"
-      ? data.avgWaiting
-      : Object.values(processStatsResult).reduce(
-          (sum, s) => sum + s.waitingTime,
-          0,
-        ) / validProcs;
+    Object.values(processStatsResult).reduce(
+      (sum, s) => sum + s.waitingTime,
+      0,
+    ) / validProcs;
 
   const avgResponse =
-    typeof data.avgResponse === "number"
-      ? data.avgResponse
-      : Object.values(processStatsResult).reduce(
-          (sum, s) => sum + s.responseTime,
-          0,
-        ) / validProcs;
+    Object.values(processStatsResult).reduce(
+      (sum, s) => sum + s.responseTime,
+      0,
+    ) / validProcs;
 
   return {
     timeline:
