@@ -36,4 +36,5 @@ export function algorithmTypeToValue<K extends typeof algorithmType>(
     case algorithmType.CUSTOM:
       return algorithmType.CUSTOM as K[keyof K];
   }
+  return value;
 }

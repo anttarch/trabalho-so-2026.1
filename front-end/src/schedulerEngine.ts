@@ -185,8 +185,24 @@ export async function fetchSimulationFromExternal(
       const remainingTime = Math.max(0, p.burstTime - ticksRunBefore);
 
       const stat = processStatsMap[p.id] || ({} as BackendProcessStat);
+
+      // Determine finish time: prefer backend, fallback to last execution time from timeline
+      let calculatedFinishTime = -1;
+      for (let prevT = totalSteps - 1; prevT >= 0; prevT--) {
+        const prevCpu = backendTimeline[prevT];
+        if (prevCpu) {
+          const prevCpuStr = String(prevCpu).toLowerCase();
+          if (
+            prevCpuStr === p.name.toLowerCase() ||
+            prevCpuStr === String(p.id).toLowerCase()
+          ) {
+            calculatedFinishTime = prevT + 1;
+            break;
+          }
+        }
+      }
       const finishTime =
-        typeof stat.finishTime === "number" ? stat.finishTime : -1;
+        typeof stat.finishTime === "number" ? stat.finishTime : calculatedFinishTime;
 
       let state: ProcessState["state"] = "not_arrived";
       if (finishTime !== -1 && t >= finishTime) {
@@ -201,34 +217,53 @@ export async function fetchSimulationFromExternal(
 
       // Calculate accumulated waiting time up to second t
       let waitingTime = 0;
-      for (let prevT = 0; prevT < t; prevT++) {
-        if (prevT >= p.arrivalTime) {
-          const prevCpu = backendTimeline[prevT];
-          const isFinishedBefore = finishTime !== -1 && prevT >= finishTime;
-          if (!isFinishedBefore) {
-            let wasRunning = false;
-            if (prevCpu) {
-              const prevCpuStr = String(prevCpu).toLowerCase();
-              if (
-                prevCpuStr === p.name.toLowerCase() ||
-                prevCpuStr === String(p.id).toLowerCase()
-              ) {
-                wasRunning = true;
+      if (t >= p.arrivalTime) {
+        if (finishTime !== -1 && t >= finishTime) {
+          waitingTime =
+            typeof stat.waitingTime === "number"
+              ? stat.waitingTime
+              : 0; // Will be computed at mapping below if no backend stats
+        } else {
+          // Count ticks where process was in ready queue/waiting up to t
+          let ticksWaiting = 0;
+          for (let prevT = 0; prevT < t; prevT++) {
+            if (prevT >= p.arrivalTime) {
+              const prevCpu = backendTimeline[prevT];
+              let wasRunning = false;
+              if (prevCpu) {
+                const prevCpuStr = String(prevCpu).toLowerCase();
+                if (
+                  prevCpuStr === p.name.toLowerCase() ||
+                  prevCpuStr === String(p.id).toLowerCase()
+                ) {
+                  wasRunning = true;
+                }
+              }
+              if (!wasRunning) {
+                ticksWaiting++;
               }
             }
-            if (!wasRunning) {
-              waitingTime++;
-            }
           }
+          waitingTime =
+            typeof stat.waitingTime === "number"
+              ? Math.min(ticksWaiting, stat.waitingTime)
+              : ticksWaiting;
         }
       }
 
       // Calculate turnaround time up to second t
       let turnaroundTime = 0;
       if (t >= p.arrivalTime) {
-        turnaroundTime = t + 1 - p.arrivalTime;
         if (finishTime !== -1 && t >= finishTime) {
-          turnaroundTime = finishTime - p.arrivalTime;
+          turnaroundTime =
+            typeof stat.turnaroundTime === "number"
+              ? stat.turnaroundTime
+              : (finishTime - p.arrivalTime);
+        } else {
+          turnaroundTime = t + 1 - p.arrivalTime;
+          if (typeof stat.turnaroundTime === "number") {
+            turnaroundTime = Math.min(turnaroundTime, stat.turnaroundTime);
+          }
         }
       }
 
@@ -247,8 +282,13 @@ export async function fetchSimulationFromExternal(
           }
         }
       }
-      const responseTime =
-        firstRunTime !== -1 ? Math.max(0, firstRunTime - p.arrivalTime) : -1;
+      let responseTime = -1;
+      if (firstRunTime !== -1 && t >= firstRunTime) {
+        responseTime =
+          typeof stat.responseTime === "number"
+            ? stat.responseTime
+            : Math.max(0, firstRunTime - p.arrivalTime);
+      }
 
       processStates[p.id] = {
         state,
@@ -295,22 +335,44 @@ export async function fetchSimulationFromExternal(
     const fallbackStat = getDefaultProcessStat(p);
     const stat = processStatsMap[p.id] || ({} as BackendProcessStat);
 
-    const waitingTime =
-      typeof stat.waitingTime === "number"
-        ? stat.waitingTime
-        : fallbackStat.waitingTime;
-    const turnaroundTime =
-      typeof stat.turnaroundTime === "number"
-        ? stat.turnaroundTime
-        : fallbackStat.turnaroundTime;
-    const responseTime =
-      typeof stat.responseTime === "number"
-        ? stat.responseTime
-        : fallbackStat.responseTime;
+    // Get final step state for fallback calculation
+    const finalStep = timeline[totalSteps - 1];
+    const finalProcState = finalStep?.processStates[p.id];
+
+    // Determine finish time: prefer backend, fallback to last execution time from timeline
+    let calculatedFinishTime = -1;
+    for (let prevT = totalSteps - 1; prevT >= 0; prevT--) {
+      const prevCpu = backendTimeline[prevT];
+      if (prevCpu) {
+        const prevCpuStr = String(prevCpu).toLowerCase();
+        if (
+          prevCpuStr === p.name.toLowerCase() ||
+          prevCpuStr === String(p.id).toLowerCase()
+        ) {
+          calculatedFinishTime = prevT + 1;
+          break;
+        }
+      }
+    }
     const finishTime =
       typeof stat.finishTime === "number"
         ? stat.finishTime
-        : fallbackStat.finishTime;
+        : (calculatedFinishTime !== -1 ? calculatedFinishTime : fallbackStat.finishTime);
+
+    const waitingTime =
+      typeof stat.waitingTime === "number"
+        ? stat.waitingTime
+        : (finalProcState ? finalProcState.waitingTime : fallbackStat.waitingTime);
+
+    const turnaroundTime =
+      typeof stat.turnaroundTime === "number"
+        ? stat.turnaroundTime
+        : (finalProcState ? finalProcState.turnaroundTime : fallbackStat.turnaroundTime);
+
+    const responseTime =
+      typeof stat.responseTime === "number"
+        ? stat.responseTime
+        : (finalProcState ? finalProcState.responseTime : fallbackStat.responseTime);
 
     processStatsResult[p.id] = {
       id: p.id,
