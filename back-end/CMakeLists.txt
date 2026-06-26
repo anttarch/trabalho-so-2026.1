@@ -1,4 +1,10 @@
 cmake_minimum_required(VERSION 3.15)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+file(CREATE_LINK
+    "${CMAKE_BINARY_DIR}/compile_commands.json"
+    "${CMAKE_SOURCE_DIR}/compile_commands.json"
+    SYMBOLIC
+)
 
 project(back-end CXX)
 
@@ -16,14 +22,10 @@ FetchContent_Declare(
 )
 
 FetchContent_MakeAvailable(httplib)
-
 target_link_libraries(server PRIVATE httplib::httplib)
+
+find_package(nlohmann_json 3.12.0 REQUIRED)
+target_link_libraries(server PRIVATE nlohmann_json::nlohmann_json)
+
 find_package(Threads REQUIRED)
 target_link_libraries(server PRIVATE Threads::Threads)
-
-set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-file(CREATE_LINK
-    "${CMAKE_BINARY_DIR}/compile_commands.json"
-    "${CMAKE_SOURCE_DIR}/compile_commands.json"
-    SYMBOLIC
-)
