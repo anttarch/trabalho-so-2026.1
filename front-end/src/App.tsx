@@ -378,6 +378,71 @@ export default function App() {
             </p>
           </div>
         </div>
+
+        {isLoading && (
+          <div
+            className="card glass loading-card"
+            style={{
+              display: "flex",
+              flexDirection: "row",
+              alignItems: "center",
+              gap: "16px",
+              padding: "16px",
+            }}
+          >
+            <div className="spinner" />
+            <div>
+              <h3 style={{ fontSize: "15px" }}>Carregando simulação...</h3>
+              <p style={{ color: "var(--text-secondary)", fontSize: "13px" }}>
+                Enviando parâmetros.
+              </p>
+            </div>
+          </div>
+        )}
+
+        {error && (
+          <div
+            className="card glass error-card border-danger"
+            style={{
+              borderLeft: "4px solid var(--accent-danger)",
+              gap: "10px",
+            }}
+          >
+            <div className="flex-align-center" style={{ gap: "10px" }}>
+              <span
+                className="material-symbols-rounded"
+                style={{ color: "var(--accent-danger)", fontSize: 30 }}
+              >
+                warning
+              </span>
+              <div>
+                <h3 style={{ color: "var(--text-primary)", fontSize: "15px" }}>
+                  Falha na Conexão
+                </h3>
+                <p
+                  style={{
+                    color: "var(--text-secondary)",
+                    fontSize: "13px",
+                    margin: "2px 0px",
+                  }}
+                >
+                  Erro ao contatar o endpoint:{" "}
+                  <code
+                    className="font-mono"
+                    style={{
+                      background: "rgba(0,0,0,0.3)",
+                      padding: "2px 6px",
+                      borderRadius: "4px",
+                      fontSize: "12px",
+                    }}
+                  >
+                    {apiUrl}
+                  </code>
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
         <div className="badge-academic">SO 2026.1</div>
       </header>
 
@@ -672,86 +737,6 @@ export default function App() {
 
         {/* COLUNA DIREITA: VISUALIZADOR DA EXECUÇÃO, GANTT & MÉTRICAS */}
         <section className="column main-visualization">
-          {isLoading && (
-            <div
-              className="card glass loading-card"
-              style={{
-                display: "flex",
-                flexDirection: "row",
-                alignItems: "center",
-                gap: "16px",
-                padding: "16px",
-              }}
-            >
-              <div className="spinner" />
-              <div>
-                <h3 style={{ fontSize: "15px" }}>Carregando simulação...</h3>
-                <p style={{ color: "var(--text-secondary)", fontSize: "13px" }}>
-                  Enviando parâmetros para a biblioteca externa.
-                </p>
-              </div>
-            </div>
-          )}
-
-          {error && (
-            <div
-              className="card glass error-card border-danger"
-              style={{
-                borderLeft: "4px solid var(--accent-danger)",
-                gap: "10px",
-              }}
-            >
-              <div className="flex-align-center" style={{ gap: "10px" }}>
-                <svg
-                  className="icon-warning animation-bounce"
-                  style={{ color: "var(--accent-danger)" }}
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  width="24"
-                  height="24"
-                >
-                  <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
-                  <line x1="12" y1="9" x2="12" y2="13" />
-                  <line x1="12" y1="17" x2="12.01" y2="17" />
-                </svg>
-                <div>
-                  <h3
-                    style={{ color: "var(--text-primary)", fontSize: "15px" }}
-                  >
-                    Falha na Conexão com Biblioteca Externa
-                  </h3>
-                  <p
-                    style={{
-                      color: "var(--text-secondary)",
-                      fontSize: "13px",
-                      marginTop: "2px",
-                    }}
-                  >
-                    Erro ao contatar o endpoint:{" "}
-                    <code
-                      className="font-mono"
-                      style={{
-                        background: "rgba(0,0,0,0.3)",
-                        padding: "2px 6px",
-                        borderRadius: "4px",
-                        fontSize: "12px",
-                      }}
-                    >
-                      {apiUrl}
-                    </code>
-                  </p>
-                </div>
-              </div>
-              <p style={{ fontSize: "13px", color: "var(--text-muted)" }}>
-                Certifique-se de que a biblioteca/API externa está ativa,
-                aceitando requisições do tipo <code>POST</code> e que retorna a
-                linha do tempo de execução.
-              </p>
-            </div>
-          )}
-
           {/* PLAYBACK CONTROLLER */}
           <div className="card glass playback-card">
             <div className="playback-layout">
