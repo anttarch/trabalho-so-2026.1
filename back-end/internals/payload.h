@@ -1,7 +1,10 @@
+#ifndef __PAYLOAD_H
+#define __PAYLOAD_H
+
 #include <nlohmann/json.hpp>
 
-#include <vector>
 #include <string>
+#include <vector>
 
 #include "algorithms.h"
 
@@ -23,3 +26,5 @@ typedef struct {
 } payload;
 
 payload payload_from_json(basic_json<> &j);
+
+#endif

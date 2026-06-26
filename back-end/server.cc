@@ -3,6 +3,7 @@
 
 #include <string>
 
+#include "internals/core.h"
 #include "internals/payload.h"
 
 using json = nlohmann::json;
@@ -16,8 +17,13 @@ int main() {
           auto in = json::parse(req.body);
           payload p = payload_from_json(in);
 
+          Simulator sim;
+          sim.run(p);
+
+          json out = sim.process_result();
+
           res.status = 201;
-          res.set_content(p.process_list[0].name, "application/json");
+          res.set_content(out, "application/json");
         } catch (const std::exception &e) {
           res.status = 400;
           res.set_content("{\"error\":\"invalid json\"}", "application/json");
