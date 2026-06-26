@@ -2,10 +2,11 @@ import React, { useState, useEffect, useRef, useMemo } from "react";
 import { fetchSimulationFromExternal } from "./schedulerEngine";
 import type {
   Process,
-  AlgorithmType,
   SimulationStep,
   SimulationResult,
 } from "./schedulerEngine";
+import { algorithmType } from "./algorithmTypes";
+import type { TAlgorithmType } from "./algorithmTypes";
 import "./App.css";
 
 // Preset colors for processes
@@ -62,7 +63,7 @@ export default function App() {
 
   // Simulator Configurations
   const [processes, setProcesses] = useState<Process[]>(INITIAL_PROCESSES);
-  const [algorithm, setAlgorithm] = useState<AlgorithmType>("RR");
+  const [algorithm, setAlgorithm] = useState<TAlgorithmType>(algorithmType.RR);
   const [quantum, setQuantum] = useState<number>(2);
   const [overloadTime, setOverloadTime] = useState<number>(1);
   const [isOverloadEnabled, setIsOverloadEnabled] = useState<boolean>(true);
@@ -264,7 +265,7 @@ export default function App() {
         color: PRESET_COLORS[3],
       },
     ]);
-    setAlgorithm("RR");
+    setAlgorithm(algorithmType.RR);
     setQuantum(2);
     setOverloadTime(1);
     setIsOverloadEnabled(true);
@@ -298,7 +299,7 @@ export default function App() {
         color: PRESET_COLORS[2],
       },
     ]);
-    setAlgorithm("FIFO");
+    setAlgorithm(algorithmType.FIFO);
     setIsOverloadEnabled(false);
   };
 
@@ -337,7 +338,7 @@ export default function App() {
         color: PRESET_COLORS[3],
       },
     ]);
-    setAlgorithm("PRIOp");
+    setAlgorithm(algorithmType.PRIO);
     setIsOverloadEnabled(true);
     setOverloadTime(1);
   };
@@ -472,22 +473,33 @@ export default function App() {
                 id="algorithm-select"
                 value={algorithm}
                 onChange={(e) => {
-                  setAlgorithm(e.target.value as AlgorithmType);
+                  setAlgorithm(Number(e.target.value) as TAlgorithmType);
                 }}
                 className="select-control"
               >
-                <option value="FIFO">FIFO (First-In, First-Out)</option>
-                <option value="SJF">SJF (Shortest Job First)</option>
-                <option value="SRTF">
-                  SRTF (Shortest Remaining Time First)
+                <option value={algorithmType.FIFO}>
+                  FIFO (First-In, First-Out - Não Preemptivo)
                 </option>
-                <option value="RR">Round Robin (RR - Preemptivo)</option>
-                <option value="PRIOnp">Prioridade Não-Preemptiva</option>
-                <option value="PRIOp">Prioridade Preemptiva</option>
+                <option value={algorithmType.SJF}>
+                  SJF (Shortest Job First - Não Preemptivo)
+                </option>
+                <option value={algorithmType.RR}>
+                  Round Robin (Preemptivo)
+                </option>
+                <option value={algorithmType.PRIO}>
+                  Prioridade (Preemptivo)
+                </option>
+                <option value={algorithmType.EDF}>
+                  EDF (Earliest Deadline First - Preemptivo)
+                </option>
+                <option value={algorithmType.CFS}>
+                  CFS (Completely Fair Scheduler - Preemptivo)
+                </option>
+                <option value={algorithmType.CUSTOM}>Autoral</option>
               </select>
             </div>
 
-            {algorithm === "RR" && (
+            {algorithm === algorithmType.RR && (
               <div className="form-group slide-in">
                 <div className="label-with-val">
                   <label htmlFor="quantum-input">
@@ -634,9 +646,7 @@ export default function App() {
                     <th>Nome</th>
                     <th>Chegada</th>
                     <th>Execução</th>
-                    {(algorithm === "PRIOnp" || algorithm === "PRIOp") && (
-                      <th>Prioridade</th>
-                    )}
+                    {algorithm === algorithmType.PRIO && <th>Prioridade</th>}
                     <th>Cor</th>
                     <th></th>
                   </tr>
@@ -677,7 +687,7 @@ export default function App() {
                           className="table-input"
                         />
                       </td>
-                      {(algorithm === "PRIOnp" || algorithm === "PRIOp") && (
+                      {algorithm === algorithmType.PRIO && (
                         <td>
                           <input
                             type="number"

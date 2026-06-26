@@ -1,4 +1,4 @@
-export type AlgorithmType = "FIFO" | "SJF" | "SRTF" | "RR" | "PRIOnp" | "PRIOp";
+import type { TAlgorithmType } from "./algorithmTypes";
 
 export interface Process {
   id: number;
@@ -68,7 +68,7 @@ export function getDefaultProcessStat(p: Process): ProcessStat {
 export async function fetchSimulationFromExternal(
   apiUrl: string,
   processes: Process[],
-  algorithm: AlgorithmType,
+  algorithm: TAlgorithmType,
   quantum: number,
   overloadTime: number,
 ): Promise<SimulationResult> {
