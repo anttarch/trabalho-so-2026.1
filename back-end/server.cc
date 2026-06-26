@@ -3,7 +3,7 @@
 
 #include <string>
 
-#include "internals/payload.cc"
+#include "internals/payload.h"
 
 using json = nlohmann::json;
 

@@ -1,21 +1,6 @@
-#include <nlohmann/json.hpp>
+#include "payload.h"
 
-#include <string>
-#include <vector>
-
-#include "algorithms.h"
-
-using namespace nlohmann;
-
-typedef struct {
-  int id;
-  std::string name;
-  int arrivalTime;
-  int burstTime;
-  int priority;
-} process;
-
-process _process_from_json(basic_json<> &j) {
+process __process_from_json(basic_json<> &j) {
   process p;
   j["id"].get_to(p.id);
   j["name"].get_to(p.name);
@@ -25,13 +10,6 @@ process _process_from_json(basic_json<> &j) {
 
   return p;
 }
-
-typedef struct {
-  algorithms algorithm;
-  int quantum;
-  int overload;
-  std::vector<process> process_list;
-} payload;
 
 payload payload_from_json(basic_json<> &j) {
   payload p;
@@ -43,7 +21,7 @@ payload payload_from_json(basic_json<> &j) {
   auto pj = j["processes"].get<std::vector<basic_json<>>>();
   std::vector<process> v;
   for (auto a : pj) {
-    process pc = _process_from_json(a);
+    process pc = __process_from_json(a);
     v.emplace_back(pc);
   }
 
