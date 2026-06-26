@@ -9,10 +9,10 @@ typedef enum { IDLE = -1, OVERLOAD = -2 } CPUTimeline;
 
 typedef struct {
   int id;
-  int waitingTime;
-  int turnaroundTime;
-  int responseTime;
-  int finishTime;
+  int waiting_time;
+  int turnaround_time;
+  int response_time;
+  int finish_time;
 } process_stat;
 
 #endif

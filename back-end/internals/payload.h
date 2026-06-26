@@ -13,8 +13,8 @@ using namespace nlohmann;
 typedef struct {
   int id; // id do processo
   std::string name; // nome do processo
-  int absoluteArrivalTime; // tempo absoluto de chegada
-  int burstTime; // tempo necessário para execução
+  int absolute_arrival_time; // tempo absoluto de chegada
+  int burst_time; // tempo necessário para execução
   int priority; // prioridade
 } process;
 

@@ -51,15 +51,15 @@ void Simulator::calculate_stats(const std::vector<process> &vp) {
       }
     }
 
-    int w = finish - p.burstTime;
-    int ta = finish - p.absoluteArrivalTime;
-    int r = firstExecution - p.absoluteArrivalTime;
+    int w = finish - p.burst_time;
+    int ta = finish - p.absolute_arrival_time;
+    int r = firstExecution - p.absolute_arrival_time;
 
     process_stat ps = {.id = p.id,
-                       .waitingTime = w,
-                       .turnaroundTime = ta,
-                       .responseTime = r,
-                       .finishTime = finish};
+                       .waiting_time = w,
+                       .turnaround_time = ta,
+                       .response_time = r,
+                       .finish_time = finish};
     result.process_stats.emplace_back(ps);
   }
 }
