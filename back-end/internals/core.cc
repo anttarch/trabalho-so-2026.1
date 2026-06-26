@@ -18,8 +18,7 @@ void Simulator::run(const payload &p) {
   case algorithms::EDF:
     // TODO
   case algorithms::CFS:
-    CFSScheduler::run(p, &result.timeline);
-    break;
+    // TODO
   case algorithms::CUSTOM:
     // TODO
     break;
