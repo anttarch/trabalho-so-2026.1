@@ -11,17 +11,17 @@
 using namespace nlohmann;
 
 typedef struct {
-  int id;
-  std::string name;
-  int arrivalTime;
-  int burstTime;
-  int priority;
+  int id; // id do processo
+  std::string name; // nome do processo
+  int absoluteArrivalTime; // tempo absoluto de chegada
+  int burstTime; // tempo necessário para execução
+  int priority; // prioridade
 } process;
 
 typedef struct {
-  algorithms algorithm;
-  int quantum;
-  int overload;
+  algorithms algorithm; // algoritmo
+  int quantum; // tempo de quantum
+  int overload; // tempo de sobrecarga
   std::vector<process> process_list;
 } payload;
 
