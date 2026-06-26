@@ -17,9 +17,11 @@ class Simulator {
 private:
   simulation_result result;
 
+  void calculate_stats(const std::vector<process> &process_list);
+
 public:
   // redireciona para o algoritmo certo
-  void run(payload &p);
+  void run(const payload &p);
 
   // serializa o resultado
   json process_result();

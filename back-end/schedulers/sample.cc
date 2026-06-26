@@ -4,7 +4,7 @@
 
 #include "../internals/handling.h"
 
-void SampleScheduler::run(payload &p, simulation_result *r) {
+void SampleScheduler::run(const payload &p, std::vector<int> *t) {
     // Cada payload contém os seguintes dados
     //
     // int quantum -> o tempo de quantum
@@ -21,8 +21,7 @@ void SampleScheduler::run(payload &p, simulation_result *r) {
 
     // Essa função é responsável por concentrar os dados necessários para a simulação
     // e repassar o resultado.
-    // Para isso, é necessário computar a timeline e as estatisticas de cada processo,
-    // como explicado a seguir
+    // Para isso, é necessário computar a timeline como explicado a seguir
 
     // O necessário para a simulação:
     // vector<int> timeline -> ordem dos processos q a CPU vai executar
@@ -41,29 +40,8 @@ void SampleScheduler::run(payload &p, simulation_result *r) {
     // O indice de cada item da timeline representa o intervalo de tempo correspondente
     // exemplo: timeline[0] -> processo rodando de 0s a 1s...
 
-    // Também é necessário calcular as estatisticas do processo -> process_stat.
-    // Cada process_stat corresponde a um e somente um processo e deve ter:
-    //
-    // int id -> id do processo
-    // int waitingTime -> quanto tempo o processo ficou esperando/ocioso/sem executar
-    // int turnaroundTime -> quanto tempo o processo levou da chegada dele ao fim
-    // int responseTime -> quanto tempo o processo levou da chegada a primeira execução
-    // int finishTime -> segundo absoluto em que o processo termina
-    //
-    // para um processo somente:
-    std::vector<process_stat> stats_vector = {
-        {
-            .id =  1,
-            .waitingTime = 10,
-            .turnaroundTime = 25,
-            .responseTime = 0,
-            .finishTime = 35,
-        }
-    };
-
-    // por fim, é adicionado o resultado
-    r->timeline = timeline;
-    r->process_stats = stats_vector;
+    // por fim, é passado o resultado
+    *t = timeline;
 
     // é isso.
 }
