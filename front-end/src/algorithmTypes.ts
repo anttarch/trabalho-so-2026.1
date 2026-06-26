@@ -1,5 +1,9 @@
 // mas q curva do cacete
 // isso aqui n é vida n
+//
+// manter esse arquivo sincronizado com
+// "back-end/internals/algorithms.h"
+//
 
 export const algorithmType = {
   FIFO: 0,

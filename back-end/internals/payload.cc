@@ -3,7 +3,7 @@
 #include <string>
 #include <vector>
 
-#include "utils.h"
+#include "algorithms.h"
 
 using namespace nlohmann;
 
@@ -36,7 +36,7 @@ typedef struct {
 payload payload_from_json(basic_json<> &j) {
   payload p;
 
-  // j["algorithm"].get_to(p.algorithm);
+  p.algorithm = static_cast<algorithms>(j["algorithm"].get<int>());
   j["quantum"].get_to(p.quantum);
   j["overload"].get_to(p.overload);
 
