@@ -1,7 +1,8 @@
 #include <vector>
 
+#include "../schedulers/cfs.h"
+
 #include "core.h"
-#include "handling.cc"
 
 void Simulator::run(const payload &p) {
   // redireciona para os diferentes algoritmos
@@ -17,7 +18,8 @@ void Simulator::run(const payload &p) {
   case algorithms::EDF:
     // TODO
   case algorithms::CFS:
-    // TODO
+    CFSScheduler::run(p, &result.timeline);
+    break;
   case algorithms::CUSTOM:
     // TODO
     break;
@@ -62,6 +64,18 @@ void Simulator::calculate_stats(const std::vector<process> &vp) {
                        .finish_time = finish};
     result.process_stats.emplace_back(ps);
   }
+}
+
+json __stat_to_json(process_stat &ps) {
+  json j;
+
+  j["id"] = ps.id;
+  j["waitingTime"] = ps.waiting_time;
+  j["turnaroundTime"] = ps.turnaround_time;
+  j["responseTime"] = ps.response_time;
+  j["finishTime"] = ps.finish_time;
+
+  return j;
 }
 
 json Simulator::process_result() {

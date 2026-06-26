@@ -11,7 +11,12 @@ project(back-end CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-add_executable(server server.cc)
+file(GLOB SOURCES
+    */*.h
+    */*.cc
+)
+
+add_executable(server server.cc ${SOURCES})
 
 include(FetchContent)
 FetchContent_Declare(
