@@ -112,7 +112,7 @@ export async function fetchSimulationFromExternal(
     finishTime: number;
   }
 
-  const backendTimeline = (data.timeline || []) as Array<string | number>;
+  const backendTimeline = (data.timeline || []) as Array<number>;
   const backendProcessStats = (data.processStats || []) as BackendProcessStat[];
 
   // Standardize process stats into a map keyed by process.id
@@ -135,13 +135,12 @@ export async function fetchSimulationFromExternal(
     let cpuState: "idle" | "running" | "overload";
     let runningProcessId: number | null = null;
 
-    if (rawCpuState === "overload" || rawCpuState === "sobrecarga") {
+    if (rawCpuState === -2) {
       cpuState = "overload";
     } else if (
       rawCpuState === null ||
       rawCpuState === undefined ||
-      rawCpuState === "idle" ||
-      rawCpuState === "ocioso"
+      rawCpuState === -1
     ) {
       cpuState = "idle";
     } else {
@@ -202,7 +201,9 @@ export async function fetchSimulationFromExternal(
         }
       }
       const finishTime =
-        typeof stat.finishTime === "number" ? stat.finishTime : calculatedFinishTime;
+        typeof stat.finishTime === "number"
+          ? stat.finishTime
+          : calculatedFinishTime;
 
       let state: ProcessState["state"] = "not_arrived";
       if (finishTime !== -1 && t >= finishTime) {
@@ -220,9 +221,7 @@ export async function fetchSimulationFromExternal(
       if (t >= p.arrivalTime) {
         if (finishTime !== -1 && t >= finishTime) {
           waitingTime =
-            typeof stat.waitingTime === "number"
-              ? stat.waitingTime
-              : 0; // Will be computed at mapping below if no backend stats
+            typeof stat.waitingTime === "number" ? stat.waitingTime : 0; // Will be computed at mapping below if no backend stats
         } else {
           // Count ticks where process was in ready queue/waiting up to t
           let ticksWaiting = 0;
@@ -258,7 +257,7 @@ export async function fetchSimulationFromExternal(
           turnaroundTime =
             typeof stat.turnaroundTime === "number"
               ? stat.turnaroundTime
-              : (finishTime - p.arrivalTime);
+              : finishTime - p.arrivalTime;
         } else {
           turnaroundTime = t + 1 - p.arrivalTime;
           if (typeof stat.turnaroundTime === "number") {
@@ -357,22 +356,30 @@ export async function fetchSimulationFromExternal(
     const finishTime =
       typeof stat.finishTime === "number"
         ? stat.finishTime
-        : (calculatedFinishTime !== -1 ? calculatedFinishTime : fallbackStat.finishTime);
+        : calculatedFinishTime !== -1
+          ? calculatedFinishTime
+          : fallbackStat.finishTime;
 
     const waitingTime =
       typeof stat.waitingTime === "number"
         ? stat.waitingTime
-        : (finalProcState ? finalProcState.waitingTime : fallbackStat.waitingTime);
+        : finalProcState
+          ? finalProcState.waitingTime
+          : fallbackStat.waitingTime;
 
     const turnaroundTime =
       typeof stat.turnaroundTime === "number"
         ? stat.turnaroundTime
-        : (finalProcState ? finalProcState.turnaroundTime : fallbackStat.turnaroundTime);
+        : finalProcState
+          ? finalProcState.turnaroundTime
+          : fallbackStat.turnaroundTime;
 
     const responseTime =
       typeof stat.responseTime === "number"
         ? stat.responseTime
-        : (finalProcState ? finalProcState.responseTime : fallbackStat.responseTime);
+        : finalProcState
+          ? finalProcState.responseTime
+          : fallbackStat.responseTime;
 
     processStatsResult[p.id] = {
       id: p.id,
