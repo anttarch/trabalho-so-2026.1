@@ -394,7 +394,13 @@ export default function App() {
             <div className="spinner" />
             <div>
               <h3 style={{ fontSize: "15px" }}>Carregando simulação...</h3>
-              <p style={{ color: "var(--text-secondary)", fontSize: "13px" }}>
+              <p
+                style={{
+                  color: "var(--text-secondary)",
+                  fontSize: "13px",
+                  margin: "2px 0px",
+                }}
+              >
                 Enviando parâmetros.
               </p>
             </div>
@@ -403,10 +409,9 @@ export default function App() {
 
         {error && (
           <div
-            className="card glass error-card border-danger"
+            className="card glass"
             style={{
-              borderLeft: "4px solid var(--accent-danger)",
-              gap: "10px",
+              padding: "16px",
             }}
           >
             <div className="flex-align-center" style={{ gap: "10px" }}>
@@ -427,18 +432,7 @@ export default function App() {
                     margin: "2px 0px",
                   }}
                 >
-                  Erro ao contatar o endpoint:{" "}
-                  <code
-                    className="font-mono"
-                    style={{
-                      background: "rgba(0,0,0,0.3)",
-                      padding: "2px 6px",
-                      borderRadius: "4px",
-                      fontSize: "12px",
-                    }}
-                  >
-                    {apiUrl}
-                  </code>
+                  Falha ao conectar ao serviço
                 </p>
               </div>
             </div>
@@ -601,7 +595,7 @@ export default function App() {
                   title="Gerar Aleatório"
                   className="btn btn-icon-only"
                 >
-                  <span className="material-symbols-rounded">refresh</span>
+                  <span className="material-symbols-rounded">shuffle</span>
                 </button>
                 <button
                   onClick={handleAddProcess}
@@ -701,17 +695,12 @@ export default function App() {
                           className="btn-trash"
                           title="Remover"
                         >
-                          <svg
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="2"
-                            width="14"
-                            height="14"
+                          <span
+                            className="material-symbols-rounded"
+                            style={{ fontSize: 20 }}
                           >
-                            <polyline points="3 6 5 6 21 6"></polyline>
-                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                          </svg>
+                            delete
+                          </span>
                         </button>
                       </td>
                     </tr>
