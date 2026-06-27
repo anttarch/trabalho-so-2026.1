@@ -1,6 +1,8 @@
 #ifndef __CORE_H
 #define __CORE_H
 
+#include <nlohmann/json.hpp>
+
 #include <vector>
 
 #include "handling.h"
@@ -24,7 +26,7 @@ public:
   void run(const payload &p);
 
   // serializa o resultado
-  json process_result();
+  ordered_json process_result();
 };
 
 #endif

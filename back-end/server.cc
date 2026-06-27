@@ -20,10 +20,10 @@ int main() {
           Simulator sim;
           sim.run(p);
 
-          json out = sim.process_result();
+          ordered_json out = sim.process_result();
 
           res.status = 201;
-          res.set_content(out, "application/json");
+          res.set_content(out.dump(), "application/json");
         } catch (const std::exception &e) {
           res.status = 400;
           res.set_content("{\"error\":\"invalid json\"}", "application/json");

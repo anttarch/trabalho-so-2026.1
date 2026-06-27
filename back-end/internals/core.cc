@@ -63,8 +63,8 @@ void Simulator::calculate_stats(const std::vector<process> &vp) {
   }
 }
 
-json __stat_to_json(process_stat &ps) {
-  json j;
+ordered_json __stat_to_json(process_stat &ps) {
+  ordered_json j;
 
   j["id"] = ps.id;
   j["waitingTime"] = ps.waiting_time;
@@ -75,14 +75,14 @@ json __stat_to_json(process_stat &ps) {
   return j;
 }
 
-json Simulator::process_result() {
-  json j;
+ordered_json Simulator::process_result() {
+  ordered_json j;
 
   j["timeline"] = this->result.timeline;
 
-  std::vector<basic_json<>> v;
+  std::vector<ordered_json> v;
   for (auto ps : this->result.process_stats) {
-    json a = __stat_to_json(ps);
+    ordered_json a = __stat_to_json(ps);
     v.emplace_back(a);
   }
 
