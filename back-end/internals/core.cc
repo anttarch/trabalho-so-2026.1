@@ -1,7 +1,5 @@
 #include <vector>
 
-#include "../schedulers/cfs.h"
-
 #include "core.h"
 
 void Simulator::run(const payload &p) {
