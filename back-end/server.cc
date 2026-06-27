@@ -1,6 +1,7 @@
 #include <httplib.h>
 #include <nlohmann/json.hpp>
 
+#include <iostream>
 #include <string>
 
 #include "internals/core.h"
@@ -10,6 +11,30 @@ using json = nlohmann::json;
 
 int main() {
   httplib::Server server;
+
+  server.set_post_routing_handler(
+      [](const httplib::Request &req, httplib::Response &res) {
+        res.set_header("Access-Control-Allow-Origin", "*");
+        res.set_header("Access-Control-Allow-Methods", "POST, OPTIONS");
+        res.set_header("Access-Control-Allow-Headers", "Accept, Content-Type");
+      });
+
+  server.Options("/.*", [](const auto &req, auto &res) { res.status = 204; });
+
+  server.set_pre_routing_handler([](const auto &req, auto &res) {
+    res.user_data.set("start", std::chrono::steady_clock::now());
+    return httplib::Server::HandlerResponse::Unhandled;
+  });
+
+  server.set_logger([](const auto &req, const auto &res) {
+    auto *start = res.user_data.template get<std::chrono::steady_clock::time_point>("start");
+    auto elapsed = start
+      ? std::chrono::duration_cast<std::chrono::milliseconds>(
+          std::chrono::steady_clock::now() - *start).count()
+      : 0;
+    std::cout << req.method << " " << req.path
+              << " " << res.status << " " << elapsed << "ms" << std::endl;
+  });
 
   server.Post(
       "/simulate", [](const httplib::Request &req, httplib::Response &res) {
