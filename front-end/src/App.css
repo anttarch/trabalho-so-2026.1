@@ -280,11 +280,11 @@
 }
 
 .table-input {
-    width: 60px;
+    width: 40px;
     background: #111827;
     border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 6px;
-    padding: 6px 8px;
+    padding: 6px 6px;
     color: var(--text-primary);
     font-family: var(--font-mono);
     font-size: 13px;
