@@ -37,7 +37,7 @@ void Simulator::calculate_stats(const std::vector<process> &vp) {
 
   for (process p : vp) {
     int finish = 0;
-    for (int i = t.size(); i > 0; i--) {
+    for (int i = t.size() - 1; i > 0; i--) {
       if (t[i] == p.id) {
         finish = i + 1;
         break;
