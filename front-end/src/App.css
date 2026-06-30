@@ -65,7 +65,7 @@
 
 .dashboard-grid {
     display: grid;
-    grid-template-columns: 360px 1fr;
+    grid-template-columns: 360px minmax(0, 1fr);
     gap: 24px;
     align-items: start;
 }
@@ -116,6 +116,13 @@
     display: flex;
     flex-direction: column;
     gap: 24px;
+}
+
+.main-visualization {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    min-width: 0;
 }
 
 /* Form Controls */
@@ -751,6 +758,7 @@
 }
 
 .gantt-row-label {
+    box-sizing: border-box;
     width: 150px;
     min-width: 150px;
     font-size: 13px;
@@ -928,6 +936,32 @@
     z-index: 5;
     pointer-events: none;
     transition: left 0.1s ease-out;
+}
+
+/* Gantt Deadline line */
+.gantt-deadline-line {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    z-index: 4;
+    pointer-events: none;
+}
+
+.gantt-deadline-label {
+    position: absolute;
+    top: 24px;
+    transform: translateX(-50%);
+    font-size: 9px;
+    font-family: var(--font-sans);
+    font-weight: 800;
+    padding: 2px 6px;
+    border-radius: 3px;
+    color: #fff;
+    white-space: nowrap;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+    opacity: 1;
+    z-index: 10;
 }
 
 .gantt-legend {

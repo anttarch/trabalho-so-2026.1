@@ -30,7 +30,7 @@ const INITIAL_PROCESSES: Process[] = [
     arrivalTime: 0,
     burstTime: 5,
     priority: 3,
-    deadline: 0,
+    deadline: 12,
     color: PRESET_COLORS[0],
   },
   {
@@ -39,7 +39,7 @@ const INITIAL_PROCESSES: Process[] = [
     arrivalTime: 2,
     burstTime: 3,
     priority: 1,
-    deadline: 0,
+    deadline: 10,
     color: PRESET_COLORS[1],
   },
   {
@@ -48,7 +48,7 @@ const INITIAL_PROCESSES: Process[] = [
     arrivalTime: 4,
     burstTime: 2,
     priority: 4,
-    deadline: 0,
+    deadline: 15,
     color: PRESET_COLORS[2],
   },
   {
@@ -57,7 +57,7 @@ const INITIAL_PROCESSES: Process[] = [
     arrivalTime: 6,
     burstTime: 4,
     priority: 2,
-    deadline: 0,
+    deadline: 18,
     color: PRESET_COLORS[3],
   },
 ];
@@ -174,13 +174,15 @@ export default function App() {
       0,
     );
     const color = PRESET_COLORS[(nextIndex - 1) % PRESET_COLORS.length];
+    const arrivalTime = Math.max(0, Math.min(20, Math.floor(Math.random() * 8)));
+    const burstTime = Math.max(1, Math.min(10, Math.floor(Math.random() * 7) + 2));
     const newProc: Process = {
       id: maxId + 1,
       name: `P${nextIndex}`,
-      arrivalTime: Math.max(0, Math.min(20, Math.floor(Math.random() * 8))),
-      burstTime: Math.max(1, Math.min(10, Math.floor(Math.random() * 7) + 2)),
+      arrivalTime,
+      burstTime,
       priority: Math.floor(Math.random() * 5) + 1,
-      deadline: 0,
+      deadline: arrivalTime + burstTime + 8,
       color,
     };
     setProcesses([...processes, newProc]);
@@ -226,15 +228,21 @@ export default function App() {
 
   const handleRandomize = () => {
     const count = Math.floor(Math.random() * 3) + 4; // 4 to 6 processes
-    const randomized: Process[] = Array.from({ length: count }, (_, idx) => ({
-      id: idx + 1,
-      name: `P${idx + 1}`,
-      arrivalTime: Math.floor(Math.random() * 8),
-      burstTime: Math.floor(Math.random() * 7) + 2, // 2s to 8s
-      priority: Math.floor(Math.random() * 5) + 1, // 1 to 5
-      deadline: 0,
-      color: PRESET_COLORS[idx % PRESET_COLORS.length],
-    }));
+    const randomized: Process[] = Array.from({ length: count }, (_, idx) => {
+      const arrivalTime = Math.floor(Math.random() * 8);
+      const burstTime = Math.floor(Math.random() * 7) + 2; // 2s to 8s
+      const priority = Math.floor(Math.random() * 5) + 1; // 1 to 5
+      const deadline = arrivalTime + burstTime + Math.floor(Math.random() * 10) + 3;
+      return {
+        id: idx + 1,
+        name: `P${idx + 1}`,
+        arrivalTime,
+        burstTime,
+        priority,
+        deadline,
+        color: PRESET_COLORS[idx % PRESET_COLORS.length],
+      };
+    });
     setProcesses(randomized);
   };
 
@@ -246,7 +254,7 @@ export default function App() {
         arrivalTime: 0,
         burstTime: 6,
         priority: 3,
-        deadline: 0,
+        deadline: 12,
         color: PRESET_COLORS[0],
       },
       {
@@ -255,7 +263,7 @@ export default function App() {
         arrivalTime: 2,
         burstTime: 3,
         priority: 1,
-        deadline: 0,
+        deadline: 10,
         color: PRESET_COLORS[1],
       },
       {
@@ -264,7 +272,7 @@ export default function App() {
         arrivalTime: 4,
         burstTime: 1,
         priority: 4,
-        deadline: 0,
+        deadline: 8,
         color: PRESET_COLORS[2],
       },
       {
@@ -273,7 +281,7 @@ export default function App() {
         arrivalTime: 5,
         burstTime: 4,
         priority: 2,
-        deadline: 0,
+        deadline: 15,
         color: PRESET_COLORS[3],
       },
     ]);
@@ -292,7 +300,7 @@ export default function App() {
         arrivalTime: 0,
         burstTime: 12,
         priority: 3,
-        deadline: 0,
+        deadline: 20,
         color: PRESET_COLORS[0],
       },
       {
@@ -301,7 +309,7 @@ export default function App() {
         arrivalTime: 1,
         burstTime: 2,
         priority: 2,
-        deadline: 0,
+        deadline: 8,
         color: PRESET_COLORS[1],
       },
       {
@@ -310,7 +318,7 @@ export default function App() {
         arrivalTime: 1,
         burstTime: 2,
         priority: 1,
-        deadline: 0,
+        deadline: 10,
         color: PRESET_COLORS[2],
       },
     ]);
@@ -326,7 +334,7 @@ export default function App() {
         arrivalTime: 0,
         burstTime: 5,
         priority: 4,
-        deadline: 0,
+        deadline: 12,
         color: PRESET_COLORS[0],
       },
       {
@@ -335,7 +343,7 @@ export default function App() {
         arrivalTime: 1,
         burstTime: 4,
         priority: 2,
-        deadline: 0,
+        deadline: 10,
         color: PRESET_COLORS[1],
       },
       {
@@ -344,7 +352,7 @@ export default function App() {
         arrivalTime: 2,
         burstTime: 6,
         priority: 1,
-        deadline: 0,
+        deadline: 15,
         color: PRESET_COLORS[2],
       },
       {
@@ -353,7 +361,7 @@ export default function App() {
         arrivalTime: 3,
         burstTime: 2,
         priority: 3,
-        deadline: 0,
+        deadline: 9,
         color: PRESET_COLORS[3],
       },
     ]);
@@ -399,61 +407,71 @@ export default function App() {
           </div>
         </div>
 
-        {isLoading && (
-          <div
-            className="card glass loading-card"
-            style={{
-              display: "flex",
-              flexDirection: "row",
-              alignItems: "center",
-              gap: "16px",
-              padding: "16px",
-            }}
-          >
-            <div className="spinner" />
-            <div>
-              <h3 style={{ fontSize: "15px" }}>Carregando simulação...</h3>
-              <p
-                style={{
-                  color: "var(--text-secondary)",
-                  fontSize: "13px",
-                  margin: "2px 0px",
-                }}
-              >
-                Enviando parâmetros.
-              </p>
-            </div>
+        <div
+          className="card glass"
+          style={{
+            display: "flex",
+            flexDirection: "row",
+            alignItems: "center",
+            gap: "16px",
+            padding: "12px 20px",
+            margin: 0,
+            visibility: isLoading ? "visible" : "hidden",
+            opacity: isLoading ? 1 : 0,
+            pointerEvents: isLoading ? "auto" : "none",
+            transition: "opacity 0.2s ease-in-out, visibility 0.2s",
+            borderRadius: "12px",
+          }}
+        >
+          <div className="spinner" />
+          <div>
+            <h3 style={{ fontSize: "14px", margin: 0 }}>Carregando simulação...</h3>
+            <p
+              style={{
+                color: "var(--text-secondary)",
+                fontSize: "12px",
+                margin: "2px 0px 0px 0px",
+              }}
+            >
+              Enviando parâmetros.
+            </p>
           </div>
-        )}
+        </div>
 
         {error && (
           <div
             className="card glass"
             style={{
-              padding: "16px",
+              display: "flex",
+              flexDirection: "row",
+              alignItems: "center",
+              gap: "10px",
+              padding: "12px 20px",
+              margin: 0,
+              borderRadius: "12px",
+              border: "1px solid rgba(239, 68, 68, 0.3)",
+              boxShadow: "0 4px 20px rgba(239, 68, 68, 0.1)",
             }}
           >
-            <div className="flex-align-center" style={{ gap: "10px" }}>
-              <span
-                className="material-symbols-rounded"
-                style={{ color: "var(--accent-danger)", fontSize: 30 }}
+            <span
+              className="material-symbols-rounded"
+              style={{ color: "var(--accent-danger)", fontSize: 26 }}
+            >
+              warning
+            </span>
+            <div>
+              <h3 style={{ color: "var(--text-primary)", fontSize: "14px", margin: 0 }}>
+                Falha na Conexão
+              </h3>
+              <p
+                style={{
+                  color: "var(--text-secondary)",
+                  fontSize: "12px",
+                  margin: "2px 0px 0px 0px",
+                }}
               >
-                warning
-              </span>
-              <div>
-                <h3 style={{ color: "var(--text-primary)", fontSize: "15px" }}>
-                  Falha na Conexão
-                </h3>
-                <p
-                  style={{
-                    color: "var(--text-secondary)",
-                    fontSize: "13px",
-                    margin: "2px 0px",
-                  }}
-                >
-                  Falha ao conectar ao serviço
-                </p>
-              </div>
+                Falha ao conectar ao serviço
+              </p>
             </div>
           </div>
         )}
@@ -768,17 +786,12 @@ export default function App() {
                   className="btn btn-control"
                   title="Voltar 1s"
                 >
-                  <svg
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    width="16"
-                    height="16"
+                  <span
+                    className="material-symbols-rounded"
+                    style={{ height: "auto" }}
                   >
-                    <polygon points="19 20 9 12 19 4 19 20"></polygon>
-                    <line x1="5" y1="19" x2="5" y2="5"></line>
-                  </svg>
+                    arrow_back
+                  </span>
                 </button>
 
                 <button
@@ -787,28 +800,19 @@ export default function App() {
                   title={isPlaying ? "Pausar" : "Iniciar Simulação"}
                 >
                   {isPlaying ? (
-                    <svg
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      width="20"
-                      height="20"
+                    <span
+                      className="material-symbols-rounded"
+                      style={{ height: "auto" }}
                     >
-                      <rect x="6" y="4" width="4" height="16"></rect>
-                      <rect x="14" y="4" width="4" height="16"></rect>
-                    </svg>
+                      pause
+                    </span>
                   ) : (
-                    <svg
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      width="20"
-                      height="20"
+                    <span
+                      className="material-symbols-rounded"
+                      style={{ height: "auto" }}
                     >
-                      <polygon points="5 3 19 12 5 21 5 3"></polygon>
-                    </svg>
+                      play_arrow
+                    </span>
                   )}
                 </button>
 
@@ -822,17 +826,12 @@ export default function App() {
                   className="btn btn-control"
                   title="Avançar 1s"
                 >
-                  <svg
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    width="16"
-                    height="16"
+                  <span
+                    className="material-symbols-rounded"
+                    style={{ height: "auto" }}
                   >
-                    <polygon points="5 4 15 12 5 20 5 4"></polygon>
-                    <line x1="19" y1="5" x2="19" y2="19"></line>
-                  </svg>
+                    arrow_forward
+                  </span>
                 </button>
 
                 <button
@@ -843,16 +842,12 @@ export default function App() {
                   className="btn btn-control"
                   title="Reiniciar"
                 >
-                  <svg
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    width="16"
-                    height="16"
+                  <span
+                    className="material-symbols-rounded"
+                    style={{ height: "auto" }}
                   >
-                    <path d="M2.5 2v6h6M2.66 15.57a10 10 0 1 1-.66-7.57l5.67-5.67" />
-                  </svg>
+                    replay
+                  </span>
                 </button>
               </div>
 
@@ -1014,20 +1009,62 @@ export default function App() {
             <div className="gantt-scroll-container">
               <div className="gantt-chart">
                 {/* TIMELINE ROW */}
-                <div className="gantt-row time-header-row">
+                <div
+                  className="gantt-row time-header-row"
+                  style={{ position: "relative" }}
+                >
                   <div className="gantt-row-label">Tempo (s)</div>
-                  <div className="gantt-row-cells">
-                    {timeline.map((_, idx) => (
-                      <div
-                        key={idx}
-                        className={`gantt-time-cell ${currentTime === idx ? "active" : ""}`}
-                      >
-                        {idx}
-                      </div>
-                    ))}
-                    <div className="gantt-time-cell end-cap">
-                      {timeline.length}
-                    </div>
+                  <div
+                    className="gantt-row-cells"
+                    style={{
+                      position: "relative",
+                      width: "100%",
+                      height: "100%",
+                    }}
+                  >
+                    {Array.from({ length: timeline.length + 1 }).map(
+                      (_, idx) => (
+                        <div
+                          key={idx}
+                          className={`gantt-time-tick-container ${currentTime === idx ? "active" : ""}`}
+                          style={{
+                            position: "absolute",
+                            left: `${idx * 36 + 18}px`,
+                            transform: "translateX(-50%)",
+                            display: "flex",
+                            flexDirection: "column",
+                            alignItems: "center",
+                            top: "4px",
+                          }}
+                        >
+                          <span
+                            style={{
+                              fontSize: "10px",
+                              fontFamily: "var(--font-mono)",
+                              color:
+                                currentTime === idx
+                                  ? "var(--accent-primary)"
+                                  : "var(--text-muted)",
+                              fontWeight:
+                                currentTime === idx ? "bold" : "normal",
+                            }}
+                          >
+                            {idx}
+                          </span>
+                          <div
+                            style={{
+                              width: "1px",
+                              height: "6px",
+                              background:
+                                currentTime === idx
+                                  ? "var(--accent-primary)"
+                                  : "rgba(255, 255, 255, 0.2)",
+                              marginTop: "2px",
+                            }}
+                          />
+                        </div>
+                      ),
+                    )}
                   </div>
                 </div>
 
@@ -1075,7 +1112,9 @@ export default function App() {
                       className="gantt-row-label"
                       style={{ borderLeft: `4px solid ${proc.color}` }}
                     >
-                      {proc.name} {algorithm === algorithmType.EDF && `(D: ${proc.deadline}s)`}
+                      {proc.name}{" "}
+                      {algorithm === algorithmType.EDF &&
+                        `(D: ${proc.deadline}s)`}
                     </div>
                     <div className="gantt-row-cells">
                       {timeline.map((step, idx) => {
@@ -1142,6 +1181,59 @@ export default function App() {
                     left: `calc(150px + ${currentTime * 36}px + 18px)`, // Offset label width (150px) + step width (36px) + center adjustment
                   }}
                 />
+
+                {/* DEADLINE LINES */}
+                {algorithm === algorithmType.EDF &&
+                  (() => {
+                    const deadlineGroups: Record<number, Process[]> = {};
+                    processes.forEach((p) => {
+                      if (p.deadline !== undefined && p.deadline >= 0) {
+                        if (!deadlineGroups[p.deadline]) {
+                          deadlineGroups[p.deadline] = [];
+                        }
+                        deadlineGroups[p.deadline].push(p);
+                      }
+                    });
+
+                    return Object.entries(deadlineGroups).map(
+                      ([deadlineStr, groupProcs]) => {
+                        const deadlineVal = parseInt(deadlineStr, 10);
+                        const isAnyOvershot = groupProcs.some((p) => {
+                          const stat = processStats[p.id];
+                          return !!(
+                            simulationResult &&
+                            stat &&
+                            stat.finishTime > p.deadline
+                          );
+                        });
+                        const deadlineColor = isAnyOvershot
+                          ? "#ef4444"
+                          : "#10b981";
+                        const labelText = `${groupProcs.map((p) => p.name).join(", ")} D`;
+
+                        return (
+                          <div
+                            key={`deadline-${deadlineVal}`}
+                            className="gantt-deadline-line"
+                            style={{
+                              left: `calc(150px + ${deadlineVal * 36}px + 18px)`,
+                              borderLeft: `2px dashed ${deadlineColor}`,
+                            }}
+                            title={`Deadline: ${deadlineVal}s | Processos: ${groupProcs.map((p) => p.name).join(", ")} (${isAnyOvershot ? "Perdido/Overshot" : "Ok"})`}
+                          >
+                            <span
+                              className="gantt-deadline-label"
+                              style={{
+                                backgroundColor: deadlineColor,
+                              }}
+                            >
+                              {labelText}
+                            </span>
+                          </div>
+                        );
+                      },
+                    );
+                  })()}
               </div>
             </div>
 
@@ -1159,6 +1251,34 @@ export default function App() {
               <div className="legend-item">
                 <span className="legend-box idle-legend" /> CPU Ociosa / Vazio
               </div>
+              {algorithm === algorithmType.EDF && (
+                <>
+                  <div className="legend-item">
+                    <span
+                      className="legend-box"
+                      style={{
+                        width: "14px",
+                        height: "0px",
+                        borderTop: "2px dashed #10b981",
+                        borderRadius: "0px",
+                      }}
+                    />{" "}
+                    Deadline OK
+                  </div>
+                  <div className="legend-item">
+                    <span
+                      className="legend-box"
+                      style={{
+                        width: "14px",
+                        height: "0px",
+                        borderTop: "2px dashed #ef4444",
+                        borderRadius: "0px",
+                      }}
+                    />{" "}
+                    Deadline Estourado
+                  </div>
+                </>
+              )}
             </div>
           </div>
 
@@ -1241,12 +1361,21 @@ export default function App() {
                           </td>
                           {algorithm === algorithmType.EDF && (
                             <td>
-                              <span style={{
-                                color: simulationResult && stat.finishTime > p.deadline ? "#ef4444" : "#10b981",
-                                fontWeight: "bold"
-                              }}>
+                              <span
+                                style={{
+                                  color:
+                                    simulationResult &&
+                                    stat.finishTime > p.deadline
+                                      ? "#ef4444"
+                                      : "#10b981",
+                                  fontWeight: "bold",
+                                }}
+                              >
                                 {p.deadline}s
-                                {simulationResult && stat.finishTime > p.deadline ? " (Perdido)" : ""}
+                                {simulationResult &&
+                                stat.finishTime > p.deadline
+                                  ? " (Perdido)"
+                                  : ""}
                               </span>
                             </td>
                           )}
