@@ -1014,20 +1014,43 @@ export default function App() {
             <div className="gantt-scroll-container">
               <div className="gantt-chart">
                 {/* TIMELINE ROW */}
-                <div className="gantt-row time-header-row">
+                <div className="gantt-row time-header-row" style={{ position: "relative" }}>
                   <div className="gantt-row-label">Tempo (s)</div>
-                  <div className="gantt-row-cells">
-                    {timeline.map((_, idx) => (
+                  <div className="gantt-row-cells" style={{ position: "relative", width: "100%", height: "100%" }}>
+                    {Array.from({ length: timeline.length + 1 }).map((_, idx) => (
                       <div
                         key={idx}
-                        className={`gantt-time-cell ${currentTime === idx ? "active" : ""}`}
+                        className={`gantt-time-tick-container ${currentTime === idx ? "active" : ""}`}
+                        style={{
+                          position: "absolute",
+                          left: `${idx * 36 + 18}px`,
+                          transform: "translateX(-50%)",
+                          display: "flex",
+                          flexDirection: "column",
+                          alignItems: "center",
+                          top: "4px"
+                        }}
                       >
-                        {idx}
+                        <span
+                          style={{
+                            fontSize: "10px",
+                            fontFamily: "var(--font-mono)",
+                            color: currentTime === idx ? "var(--accent-primary)" : "var(--text-muted)",
+                            fontWeight: currentTime === idx ? "bold" : "normal"
+                          }}
+                        >
+                          {idx}
+                        </span>
+                        <div
+                          style={{
+                            width: "1px",
+                            height: "6px",
+                            background: currentTime === idx ? "var(--accent-primary)" : "rgba(255, 255, 255, 0.2)",
+                            marginTop: "2px"
+                          }}
+                        />
                       </div>
                     ))}
-                    <div className="gantt-time-cell end-cap">
-                      {timeline.length}
-                    </div>
                   </div>
                 </div>
 

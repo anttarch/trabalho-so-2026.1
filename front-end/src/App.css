@@ -751,6 +751,7 @@
 }
 
 .gantt-row-label {
+    box-sizing: border-box;
     width: 150px;
     min-width: 150px;
     font-size: 13px;
