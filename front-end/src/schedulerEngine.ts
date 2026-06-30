@@ -28,7 +28,6 @@ export interface SimulationStep {
 
 export interface ProcessStat {
   id: number;
-  name: string;
   arrivalTime: number;
   burstTime: number;
   finishTime: number;
@@ -51,7 +50,6 @@ export interface SimulationResult {
 export function getDefaultProcessStat(p: Process): ProcessStat {
   return {
     id: p.id,
-    name: p.name,
     arrivalTime: p.arrivalTime,
     burstTime: p.burstTime,
     finishTime: p.arrivalTime + p.burstTime,
@@ -78,7 +76,6 @@ export async function fetchSimulationFromExternal(
     overload: overloadTime,
     processes: processes.map((p) => ({
       id: p.id,
-      name: p.name,
       arrivalTime: p.arrivalTime,
       burstTime: p.burstTime,
       priority: p.priority,
@@ -383,7 +380,6 @@ export async function fetchSimulationFromExternal(
 
     processStatsResult[p.id] = {
       id: p.id,
-      name: p.name,
       arrivalTime: p.arrivalTime,
       burstTime: p.burstTime,
       finishTime,
