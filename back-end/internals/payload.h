@@ -3,7 +3,6 @@
 
 #include <nlohmann/json.hpp>
 
-#include <string>
 #include <vector>
 
 #include "algorithms.h"
@@ -12,7 +11,6 @@ using namespace nlohmann;
 
 typedef struct {
   int id; // id do processo
-  std::string name; // nome do processo
   int absolute_arrival_time; // tempo absoluto de chegada
   int burst_time; // tempo necessário para execução
   int priority; // prioridade
