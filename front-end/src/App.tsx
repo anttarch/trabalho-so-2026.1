@@ -1168,39 +1168,48 @@ export default function App() {
                 />
 
                 {/* DEADLINE LINES */}
-                {algorithm === algorithmType.EDF && processes.map((proc, index) => {
-                  if (proc.deadline === undefined || proc.deadline < 0) return null;
-                  const stat = processStats[proc.id];
-                  const isOvershot = !!(simulationResult && stat && stat.finishTime > proc.deadline);
-                  const deadlineColor = isOvershot ? "#ef4444" : "#10b981";
+                {algorithm === algorithmType.EDF && (() => {
+                  const deadlineGroups: Record<number, Process[]> = {};
+                  processes.forEach((p) => {
+                    if (p.deadline !== undefined && p.deadline >= 0) {
+                      if (!deadlineGroups[p.deadline]) {
+                        deadlineGroups[p.deadline] = [];
+                      }
+                      deadlineGroups[p.deadline].push(p);
+                    }
+                  });
 
-                  // Find how many processes before this one have the same deadline
-                  const sameDeadlineCount = processes
-                    .slice(0, index)
-                    .filter((p) => p.deadline === proc.deadline).length;
+                  return Object.entries(deadlineGroups).map(([deadlineStr, groupProcs]) => {
+                    const deadlineVal = parseInt(deadlineStr, 10);
+                    const isAnyOvershot = groupProcs.some((p) => {
+                      const stat = processStats[p.id];
+                      return !!(simulationResult && stat && stat.finishTime > p.deadline);
+                    });
+                    const deadlineColor = isAnyOvershot ? "#ef4444" : "#10b981";
+                    const labelText = `${groupProcs.map((p) => p.name).join(", ")} D`;
 
-                  return (
-                    <div
-                      key={`deadline-${proc.id}`}
-                      className="gantt-deadline-line"
-                      style={{
-                        left: `calc(150px + ${proc.deadline * 36}px + 18px)`,
-                        borderLeft: `2px dashed ${deadlineColor}`,
-                      }}
-                      title={`${proc.name} Deadline: ${proc.deadline}s (${isOvershot ? "Perdido/Overshot" : "Ok"})`}
-                    >
-                      <span
-                        className="gantt-deadline-label"
+                    return (
+                      <div
+                        key={`deadline-${deadlineVal}`}
+                        className="gantt-deadline-line"
                         style={{
-                          backgroundColor: deadlineColor,
-                          top: `${24 + sameDeadlineCount * 14}px`, // Stack vertically if same deadline
+                          left: `calc(150px + ${deadlineVal * 36}px + 18px)`,
+                          borderLeft: `2px dashed ${deadlineColor}`,
                         }}
+                        title={`Deadline: ${deadlineVal}s | Processos: ${groupProcs.map((p) => p.name).join(", ")} (${isAnyOvershot ? "Perdido/Overshot" : "Ok"})`}
                       >
-                        {proc.name} D
-                      </span>
-                    </div>
-                  );
-                })}
+                        <span
+                          className="gantt-deadline-label"
+                          style={{
+                            backgroundColor: deadlineColor,
+                          }}
+                        >
+                          {labelText}
+                        </span>
+                      </div>
+                    );
+                  });
+                })()}
               </div>
             </div>
 
