@@ -6,6 +6,7 @@ export interface Process {
   arrivalTime: number;
   burstTime: number;
   priority: number;
+  deadline: number;
   color: string;
 }
 
@@ -82,6 +83,7 @@ export async function fetchSimulationFromExternal(
       arrivalTime: p.arrivalTime,
       burstTime: p.burstTime,
       priority: p.priority,
+      deadline: 0,
     })),
   };
 

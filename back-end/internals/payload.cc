@@ -7,6 +7,7 @@ process __process_from_json(basic_json<> &j) {
   j["arrivalTime"].get_to(p.absolute_arrival_time);
   j["burstTime"].get_to(p.burst_time);
   j["priority"].get_to(p.priority);
+  j["deadline"].get_to(p.absolute_deadline);
 
   return p;
 }

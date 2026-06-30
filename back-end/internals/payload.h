@@ -16,6 +16,7 @@ typedef struct {
   int absolute_arrival_time; // tempo absoluto de chegada
   int burst_time; // tempo necessário para execução
   int priority; // prioridade
+  int absolute_deadline; //deadline absoluta
 } process;
 
 typedef struct {
