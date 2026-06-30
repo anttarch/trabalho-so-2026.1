@@ -19,6 +19,7 @@ file(GLOB SOURCES
 add_executable(server server.cc ${SOURCES})
 
 include(FetchContent)
+
 FetchContent_Declare(
     httplib
     GIT_REPOSITORY https://github.com/yhirose/cpp-httplib.git
@@ -26,11 +27,19 @@ FetchContent_Declare(
     GIT_SHALLOW    TRUE
 )
 
-FetchContent_MakeAvailable(httplib)
-target_link_libraries(server PRIVATE httplib::httplib)
+FetchContent_Declare(
+    nlohmann_json
+    GIT_REPOSITORY https://github.com/nlohmann/json.git
+    GIT_TAG        v3.12.0
+    GIT_SHALLOW    TRUE
+)
 
-find_package(nlohmann_json 3.12.0 REQUIRED)
-target_link_libraries(server PRIVATE nlohmann_json::nlohmann_json)
+FetchContent_MakeAvailable(httplib nlohmann_json)
+
+target_link_libraries(server PRIVATE
+    httplib::httplib
+    nlohmann_json::nlohmann_json
+)
 
 find_package(Threads REQUIRED)
 target_link_libraries(server PRIVATE Threads::Threads)
