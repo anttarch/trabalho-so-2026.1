@@ -1135,6 +1135,7 @@ export default function App() {
                   </div>
                 ))}
 
+
                 {/* PLAYHEAD (Agulha de Tempo) */}
                 <div
                   className="gantt-playhead"
@@ -1142,6 +1143,41 @@ export default function App() {
                     left: `calc(150px + ${currentTime * 36}px + 18px)`, // Offset label width (150px) + step width (36px) + center adjustment
                   }}
                 />
+
+                {/* DEADLINE LINES */}
+                {algorithm === algorithmType.EDF && processes.map((proc, index) => {
+                  if (proc.deadline === undefined || proc.deadline < 0) return null;
+                  const stat = processStats[proc.id];
+                  const isOvershot = !!(simulationResult && stat && stat.finishTime > proc.deadline);
+                  const deadlineColor = isOvershot ? "#ef4444" : "#10b981";
+
+                  // Find how many processes before this one have the same deadline
+                  const sameDeadlineCount = processes
+                    .slice(0, index)
+                    .filter((p) => p.deadline === proc.deadline).length;
+
+                  return (
+                    <div
+                      key={`deadline-${proc.id}`}
+                      className="gantt-deadline-line"
+                      style={{
+                        left: `calc(150px + ${proc.deadline * 36}px + 18px)`,
+                        borderLeft: `2px dashed ${deadlineColor}`,
+                      }}
+                      title={`${proc.name} Deadline: ${proc.deadline}s (${isOvershot ? "Perdido/Overshot" : "Ok"})`}
+                    >
+                      <span
+                        className="gantt-deadline-label"
+                        style={{
+                          backgroundColor: deadlineColor,
+                          top: `${24 + sameDeadlineCount * 14}px`, // Stack vertically if same deadline
+                        }}
+                      >
+                        {proc.name} D
+                      </span>
+                    </div>
+                  );
+                })}
               </div>
             </div>
 
@@ -1159,6 +1195,34 @@ export default function App() {
               <div className="legend-item">
                 <span className="legend-box idle-legend" /> CPU Ociosa / Vazio
               </div>
+              {algorithm === algorithmType.EDF && (
+                <>
+                  <div className="legend-item">
+                    <span
+                      className="legend-box"
+                      style={{
+                        width: "14px",
+                        height: "0px",
+                        borderTop: "2px dashed #10b981",
+                        borderRadius: "0px",
+                      }}
+                    />{" "}
+                    Deadline OK
+                  </div>
+                  <div className="legend-item">
+                    <span
+                      className="legend-box"
+                      style={{
+                        width: "14px",
+                        height: "0px",
+                        borderTop: "2px dashed #ef4444",
+                        borderRadius: "0px",
+                      }}
+                    />{" "}
+                    Deadline Estourado
+                  </div>
+                </>
+              )}
             </div>
           </div>
 

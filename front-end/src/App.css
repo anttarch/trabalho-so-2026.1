@@ -930,6 +930,31 @@
     transition: left 0.1s ease-out;
 }
 
+/* Gantt Deadline line */
+.gantt-deadline-line {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    z-index: 4;
+    pointer-events: none;
+}
+
+.gantt-deadline-label {
+    position: absolute;
+    top: 24px;
+    transform: translateX(-50%);
+    font-size: 8px;
+    font-family: var(--font-sans);
+    font-weight: 800;
+    padding: 1px 4px;
+    border-radius: 3px;
+    color: #fff;
+    white-space: nowrap;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+    opacity: 0.85;
+}
+
 .gantt-legend {
     display: flex;
     justify-content: center;
