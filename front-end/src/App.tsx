@@ -768,17 +768,12 @@ export default function App() {
                   className="btn btn-control"
                   title="Voltar 1s"
                 >
-                  <svg
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    width="16"
-                    height="16"
+                  <span
+                    className="material-symbols-rounded"
+                    style={{ height: "auto" }}
                   >
-                    <polygon points="19 20 9 12 19 4 19 20"></polygon>
-                    <line x1="5" y1="19" x2="5" y2="5"></line>
-                  </svg>
+                    arrow_back
+                  </span>
                 </button>
 
                 <button
@@ -787,28 +782,19 @@ export default function App() {
                   title={isPlaying ? "Pausar" : "Iniciar Simulação"}
                 >
                   {isPlaying ? (
-                    <svg
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      width="20"
-                      height="20"
+                    <span
+                      className="material-symbols-rounded"
+                      style={{ height: "auto" }}
                     >
-                      <rect x="6" y="4" width="4" height="16"></rect>
-                      <rect x="14" y="4" width="4" height="16"></rect>
-                    </svg>
+                      pause
+                    </span>
                   ) : (
-                    <svg
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      width="20"
-                      height="20"
+                    <span
+                      className="material-symbols-rounded"
+                      style={{ height: "auto" }}
                     >
-                      <polygon points="5 3 19 12 5 21 5 3"></polygon>
-                    </svg>
+                      play_arrow
+                    </span>
                   )}
                 </button>
 
@@ -822,17 +808,12 @@ export default function App() {
                   className="btn btn-control"
                   title="Avançar 1s"
                 >
-                  <svg
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    width="16"
-                    height="16"
+                  <span
+                    className="material-symbols-rounded"
+                    style={{ height: "auto" }}
                   >
-                    <polygon points="5 4 15 12 5 20 5 4"></polygon>
-                    <line x1="19" y1="5" x2="19" y2="19"></line>
-                  </svg>
+                    arrow_forward
+                  </span>
                 </button>
 
                 <button
@@ -843,16 +824,12 @@ export default function App() {
                   className="btn btn-control"
                   title="Reiniciar"
                 >
-                  <svg
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    width="16"
-                    height="16"
+                  <span
+                    className="material-symbols-rounded"
+                    style={{ height: "auto" }}
                   >
-                    <path d="M2.5 2v6h6M2.66 15.57a10 10 0 1 1-.66-7.57l5.67-5.67" />
-                  </svg>
+                    replay
+                  </span>
                 </button>
               </div>
 
@@ -1014,43 +991,62 @@ export default function App() {
             <div className="gantt-scroll-container">
               <div className="gantt-chart">
                 {/* TIMELINE ROW */}
-                <div className="gantt-row time-header-row" style={{ position: "relative" }}>
+                <div
+                  className="gantt-row time-header-row"
+                  style={{ position: "relative" }}
+                >
                   <div className="gantt-row-label">Tempo (s)</div>
-                  <div className="gantt-row-cells" style={{ position: "relative", width: "100%", height: "100%" }}>
-                    {Array.from({ length: timeline.length + 1 }).map((_, idx) => (
-                      <div
-                        key={idx}
-                        className={`gantt-time-tick-container ${currentTime === idx ? "active" : ""}`}
-                        style={{
-                          position: "absolute",
-                          left: `${idx * 36 + 18}px`,
-                          transform: "translateX(-50%)",
-                          display: "flex",
-                          flexDirection: "column",
-                          alignItems: "center",
-                          top: "4px"
-                        }}
-                      >
-                        <span
+                  <div
+                    className="gantt-row-cells"
+                    style={{
+                      position: "relative",
+                      width: "100%",
+                      height: "100%",
+                    }}
+                  >
+                    {Array.from({ length: timeline.length + 1 }).map(
+                      (_, idx) => (
+                        <div
+                          key={idx}
+                          className={`gantt-time-tick-container ${currentTime === idx ? "active" : ""}`}
                           style={{
-                            fontSize: "10px",
-                            fontFamily: "var(--font-mono)",
-                            color: currentTime === idx ? "var(--accent-primary)" : "var(--text-muted)",
-                            fontWeight: currentTime === idx ? "bold" : "normal"
+                            position: "absolute",
+                            left: `${idx * 36 + 18}px`,
+                            transform: "translateX(-50%)",
+                            display: "flex",
+                            flexDirection: "column",
+                            alignItems: "center",
+                            top: "4px",
                           }}
                         >
-                          {idx}
-                        </span>
-                        <div
-                          style={{
-                            width: "1px",
-                            height: "6px",
-                            background: currentTime === idx ? "var(--accent-primary)" : "rgba(255, 255, 255, 0.2)",
-                            marginTop: "2px"
-                          }}
-                        />
-                      </div>
-                    ))}
+                          <span
+                            style={{
+                              fontSize: "10px",
+                              fontFamily: "var(--font-mono)",
+                              color:
+                                currentTime === idx
+                                  ? "var(--accent-primary)"
+                                  : "var(--text-muted)",
+                              fontWeight:
+                                currentTime === idx ? "bold" : "normal",
+                            }}
+                          >
+                            {idx}
+                          </span>
+                          <div
+                            style={{
+                              width: "1px",
+                              height: "6px",
+                              background:
+                                currentTime === idx
+                                  ? "var(--accent-primary)"
+                                  : "rgba(255, 255, 255, 0.2)",
+                              marginTop: "2px",
+                            }}
+                          />
+                        </div>
+                      ),
+                    )}
                   </div>
                 </div>
 
@@ -1098,7 +1094,9 @@ export default function App() {
                       className="gantt-row-label"
                       style={{ borderLeft: `4px solid ${proc.color}` }}
                     >
-                      {proc.name} {algorithm === algorithmType.EDF && `(D: ${proc.deadline}s)`}
+                      {proc.name}{" "}
+                      {algorithm === algorithmType.EDF &&
+                        `(D: ${proc.deadline}s)`}
                     </div>
                     <div className="gantt-row-cells">
                       {timeline.map((step, idx) => {
@@ -1158,7 +1156,6 @@ export default function App() {
                   </div>
                 ))}
 
-
                 {/* PLAYHEAD (Agulha de Tempo) */}
                 <div
                   className="gantt-playhead"
@@ -1168,48 +1165,57 @@ export default function App() {
                 />
 
                 {/* DEADLINE LINES */}
-                {algorithm === algorithmType.EDF && (() => {
-                  const deadlineGroups: Record<number, Process[]> = {};
-                  processes.forEach((p) => {
-                    if (p.deadline !== undefined && p.deadline >= 0) {
-                      if (!deadlineGroups[p.deadline]) {
-                        deadlineGroups[p.deadline] = [];
+                {algorithm === algorithmType.EDF &&
+                  (() => {
+                    const deadlineGroups: Record<number, Process[]> = {};
+                    processes.forEach((p) => {
+                      if (p.deadline !== undefined && p.deadline >= 0) {
+                        if (!deadlineGroups[p.deadline]) {
+                          deadlineGroups[p.deadline] = [];
+                        }
+                        deadlineGroups[p.deadline].push(p);
                       }
-                      deadlineGroups[p.deadline].push(p);
-                    }
-                  });
-
-                  return Object.entries(deadlineGroups).map(([deadlineStr, groupProcs]) => {
-                    const deadlineVal = parseInt(deadlineStr, 10);
-                    const isAnyOvershot = groupProcs.some((p) => {
-                      const stat = processStats[p.id];
-                      return !!(simulationResult && stat && stat.finishTime > p.deadline);
                     });
-                    const deadlineColor = isAnyOvershot ? "#ef4444" : "#10b981";
-                    const labelText = `${groupProcs.map((p) => p.name).join(", ")} D`;
 
-                    return (
-                      <div
-                        key={`deadline-${deadlineVal}`}
-                        className="gantt-deadline-line"
-                        style={{
-                          left: `calc(150px + ${deadlineVal * 36}px + 18px)`,
-                          borderLeft: `2px dashed ${deadlineColor}`,
-                        }}
-                        title={`Deadline: ${deadlineVal}s | Processos: ${groupProcs.map((p) => p.name).join(", ")} (${isAnyOvershot ? "Perdido/Overshot" : "Ok"})`}
-                      >
-                        <span
-                          className="gantt-deadline-label"
-                          style={{
-                            backgroundColor: deadlineColor,
-                          }}
-                        >
-                          {labelText}
-                        </span>
-                      </div>
+                    return Object.entries(deadlineGroups).map(
+                      ([deadlineStr, groupProcs]) => {
+                        const deadlineVal = parseInt(deadlineStr, 10);
+                        const isAnyOvershot = groupProcs.some((p) => {
+                          const stat = processStats[p.id];
+                          return !!(
+                            simulationResult &&
+                            stat &&
+                            stat.finishTime > p.deadline
+                          );
+                        });
+                        const deadlineColor = isAnyOvershot
+                          ? "#ef4444"
+                          : "#10b981";
+                        const labelText = `${groupProcs.map((p) => p.name).join(", ")} D`;
+
+                        return (
+                          <div
+                            key={`deadline-${deadlineVal}`}
+                            className="gantt-deadline-line"
+                            style={{
+                              left: `calc(150px + ${deadlineVal * 36}px + 18px)`,
+                              borderLeft: `2px dashed ${deadlineColor}`,
+                            }}
+                            title={`Deadline: ${deadlineVal}s | Processos: ${groupProcs.map((p) => p.name).join(", ")} (${isAnyOvershot ? "Perdido/Overshot" : "Ok"})`}
+                          >
+                            <span
+                              className="gantt-deadline-label"
+                              style={{
+                                backgroundColor: deadlineColor,
+                              }}
+                            >
+                              {labelText}
+                            </span>
+                          </div>
+                        );
+                      },
                     );
-                  });
-                })()}
+                  })()}
               </div>
             </div>
 
@@ -1337,12 +1343,21 @@ export default function App() {
                           </td>
                           {algorithm === algorithmType.EDF && (
                             <td>
-                              <span style={{
-                                color: simulationResult && stat.finishTime > p.deadline ? "#ef4444" : "#10b981",
-                                fontWeight: "bold"
-                              }}>
+                              <span
+                                style={{
+                                  color:
+                                    simulationResult &&
+                                    stat.finishTime > p.deadline
+                                      ? "#ef4444"
+                                      : "#10b981",
+                                  fontWeight: "bold",
+                                }}
+                              >
                                 {p.deadline}s
-                                {simulationResult && stat.finishTime > p.deadline ? " (Perdido)" : ""}
+                                {simulationResult &&
+                                stat.finishTime > p.deadline
+                                  ? " (Perdido)"
+                                  : ""}
                               </span>
                             </td>
                           )}

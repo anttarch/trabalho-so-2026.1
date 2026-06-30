@@ -118,6 +118,12 @@
     gap: 24px;
 }
 
+.main-visualization {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
 /* Form Controls */
 .form-group {
     display: flex;
