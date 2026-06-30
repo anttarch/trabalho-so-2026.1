@@ -399,61 +399,71 @@ export default function App() {
           </div>
         </div>
 
-        {isLoading && (
-          <div
-            className="card glass loading-card"
-            style={{
-              display: "flex",
-              flexDirection: "row",
-              alignItems: "center",
-              gap: "16px",
-              padding: "16px",
-            }}
-          >
-            <div className="spinner" />
-            <div>
-              <h3 style={{ fontSize: "15px" }}>Carregando simulação...</h3>
-              <p
-                style={{
-                  color: "var(--text-secondary)",
-                  fontSize: "13px",
-                  margin: "2px 0px",
-                }}
-              >
-                Enviando parâmetros.
-              </p>
-            </div>
+        <div
+          className="card glass"
+          style={{
+            display: "flex",
+            flexDirection: "row",
+            alignItems: "center",
+            gap: "16px",
+            padding: "12px 20px",
+            margin: 0,
+            visibility: isLoading ? "visible" : "hidden",
+            opacity: isLoading ? 1 : 0,
+            pointerEvents: isLoading ? "auto" : "none",
+            transition: "opacity 0.2s ease-in-out, visibility 0.2s",
+            borderRadius: "12px",
+          }}
+        >
+          <div className="spinner" />
+          <div>
+            <h3 style={{ fontSize: "14px", margin: 0 }}>Carregando simulação...</h3>
+            <p
+              style={{
+                color: "var(--text-secondary)",
+                fontSize: "12px",
+                margin: "2px 0px 0px 0px",
+              }}
+            >
+              Enviando parâmetros.
+            </p>
           </div>
-        )}
+        </div>
 
         {error && (
           <div
             className="card glass"
             style={{
-              padding: "16px",
+              display: "flex",
+              flexDirection: "row",
+              alignItems: "center",
+              gap: "10px",
+              padding: "12px 20px",
+              margin: 0,
+              borderRadius: "12px",
+              border: "1px solid rgba(239, 68, 68, 0.3)",
+              boxShadow: "0 4px 20px rgba(239, 68, 68, 0.1)",
             }}
           >
-            <div className="flex-align-center" style={{ gap: "10px" }}>
-              <span
-                className="material-symbols-rounded"
-                style={{ color: "var(--accent-danger)", fontSize: 30 }}
+            <span
+              className="material-symbols-rounded"
+              style={{ color: "var(--accent-danger)", fontSize: 26 }}
+            >
+              warning
+            </span>
+            <div>
+              <h3 style={{ color: "var(--text-primary)", fontSize: "14px", margin: 0 }}>
+                Falha na Conexão
+              </h3>
+              <p
+                style={{
+                  color: "var(--text-secondary)",
+                  fontSize: "12px",
+                  margin: "2px 0px 0px 0px",
+                }}
               >
-                warning
-              </span>
-              <div>
-                <h3 style={{ color: "var(--text-primary)", fontSize: "15px" }}>
-                  Falha na Conexão
-                </h3>
-                <p
-                  style={{
-                    color: "var(--text-secondary)",
-                    fontSize: "13px",
-                    margin: "2px 0px",
-                  }}
-                >
-                  Falha ao conectar ao serviço
-                </p>
-              </div>
+                Falha ao conectar ao serviço
+              </p>
             </div>
           </div>
         )}
