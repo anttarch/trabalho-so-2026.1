@@ -80,7 +80,7 @@ export async function fetchSimulationFromExternal(
       arrivalTime: p.arrivalTime,
       burstTime: p.burstTime,
       priority: p.priority,
-      deadline: 0,
+      deadline: p.deadline,
     })),
   };
 

@@ -30,6 +30,7 @@ const INITIAL_PROCESSES: Process[] = [
     arrivalTime: 0,
     burstTime: 5,
     priority: 3,
+    deadline: 0,
     color: PRESET_COLORS[0],
   },
   {
@@ -38,6 +39,7 @@ const INITIAL_PROCESSES: Process[] = [
     arrivalTime: 2,
     burstTime: 3,
     priority: 1,
+    deadline: 0,
     color: PRESET_COLORS[1],
   },
   {
@@ -46,6 +48,7 @@ const INITIAL_PROCESSES: Process[] = [
     arrivalTime: 4,
     burstTime: 2,
     priority: 4,
+    deadline: 0,
     color: PRESET_COLORS[2],
   },
   {
@@ -54,6 +57,7 @@ const INITIAL_PROCESSES: Process[] = [
     arrivalTime: 6,
     burstTime: 4,
     priority: 2,
+    deadline: 0,
     color: PRESET_COLORS[3],
   },
 ];
@@ -176,6 +180,7 @@ export default function App() {
       arrivalTime: Math.max(0, Math.min(20, Math.floor(Math.random() * 8))),
       burstTime: Math.max(1, Math.min(10, Math.floor(Math.random() * 7) + 2)),
       priority: Math.floor(Math.random() * 5) + 1,
+      deadline: 0,
       color,
     };
     setProcesses([...processes, newProc]);
@@ -203,12 +208,14 @@ export default function App() {
         if (
           field === "arrivalTime" ||
           field === "burstTime" ||
-          field === "priority"
+          field === "priority" ||
+          field === "deadline"
         ) {
           parsedVal = parseInt(String(value), 10) || 0;
           if (field === "burstTime" && parsedVal < 1) parsedVal = 1;
           if (field === "arrivalTime" && parsedVal < 0) parsedVal = 0;
           if (field === "priority" && parsedVal < 1) parsedVal = 1;
+          if (field === "deadline" && parsedVal < 0) parsedVal = 0;
         }
         return { ...p, [field]: parsedVal };
       }
@@ -225,6 +232,7 @@ export default function App() {
       arrivalTime: Math.floor(Math.random() * 8),
       burstTime: Math.floor(Math.random() * 7) + 2, // 2s to 8s
       priority: Math.floor(Math.random() * 5) + 1, // 1 to 5
+      deadline: 0,
       color: PRESET_COLORS[idx % PRESET_COLORS.length],
     }));
     setProcesses(randomized);
@@ -238,6 +246,7 @@ export default function App() {
         arrivalTime: 0,
         burstTime: 6,
         priority: 3,
+        deadline: 0,
         color: PRESET_COLORS[0],
       },
       {
@@ -246,6 +255,7 @@ export default function App() {
         arrivalTime: 2,
         burstTime: 3,
         priority: 1,
+        deadline: 0,
         color: PRESET_COLORS[1],
       },
       {
@@ -254,6 +264,7 @@ export default function App() {
         arrivalTime: 4,
         burstTime: 1,
         priority: 4,
+        deadline: 0,
         color: PRESET_COLORS[2],
       },
       {
@@ -262,6 +273,7 @@ export default function App() {
         arrivalTime: 5,
         burstTime: 4,
         priority: 2,
+        deadline: 0,
         color: PRESET_COLORS[3],
       },
     ]);
@@ -280,6 +292,7 @@ export default function App() {
         arrivalTime: 0,
         burstTime: 12,
         priority: 3,
+        deadline: 0,
         color: PRESET_COLORS[0],
       },
       {
@@ -288,6 +301,7 @@ export default function App() {
         arrivalTime: 1,
         burstTime: 2,
         priority: 2,
+        deadline: 0,
         color: PRESET_COLORS[1],
       },
       {
@@ -296,6 +310,7 @@ export default function App() {
         arrivalTime: 1,
         burstTime: 2,
         priority: 1,
+        deadline: 0,
         color: PRESET_COLORS[2],
       },
     ]);
@@ -311,6 +326,7 @@ export default function App() {
         arrivalTime: 0,
         burstTime: 5,
         priority: 4,
+        deadline: 0,
         color: PRESET_COLORS[0],
       },
       {
@@ -319,6 +335,7 @@ export default function App() {
         arrivalTime: 1,
         burstTime: 4,
         priority: 2,
+        deadline: 0,
         color: PRESET_COLORS[1],
       },
       {
@@ -327,6 +344,7 @@ export default function App() {
         arrivalTime: 2,
         burstTime: 6,
         priority: 1,
+        deadline: 0,
         color: PRESET_COLORS[2],
       },
       {
@@ -335,6 +353,7 @@ export default function App() {
         arrivalTime: 3,
         burstTime: 2,
         priority: 3,
+        deadline: 0,
         color: PRESET_COLORS[3],
       },
     ]);
@@ -615,6 +634,7 @@ export default function App() {
                     <th>Chegada</th>
                     <th>Execução</th>
                     {algorithm === algorithmType.PRIO && <th>Prioridade</th>}
+                    {algorithm === algorithmType.EDF && <th>Deadline</th>}
                     <th>Cor</th>
                     <th></th>
                   </tr>
@@ -666,6 +686,24 @@ export default function App() {
                               handleUpdateProcess(
                                 p.id,
                                 "priority",
+                                e.target.value,
+                              )
+                            }
+                            className="table-input"
+                          />
+                        </td>
+                      )}
+                      {algorithm === algorithmType.EDF && (
+                        <td>
+                          <input
+                            type="number"
+                            min="0"
+                            max="100"
+                            value={p.deadline ?? 0}
+                            onChange={(e) =>
+                              handleUpdateProcess(
+                                p.id,
+                                "deadline",
                                 e.target.value,
                               )
                             }
@@ -1037,7 +1075,7 @@ export default function App() {
                       className="gantt-row-label"
                       style={{ borderLeft: `4px solid ${proc.color}` }}
                     >
-                      {proc.name}
+                      {proc.name} {algorithm === algorithmType.EDF && `(D: ${proc.deadline}s)`}
                     </div>
                     <div className="gantt-row-cells">
                       {timeline.map((step, idx) => {
@@ -1173,6 +1211,7 @@ export default function App() {
                   <thead>
                     <tr>
                       <th>Processo</th>
+                      {algorithm === algorithmType.EDF && <th>Deadline</th>}
                       <th>Chegada ($T_c$)</th>
                       <th>Execução ($T_e$)</th>
                       <th>Conclusão ($T_f$)</th>
@@ -1200,6 +1239,17 @@ export default function App() {
                             />
                             {p.name}
                           </td>
+                          {algorithm === algorithmType.EDF && (
+                            <td>
+                              <span style={{
+                                color: simulationResult && stat.finishTime > p.deadline ? "#ef4444" : "#10b981",
+                                fontWeight: "bold"
+                              }}>
+                                {p.deadline}s
+                                {simulationResult && stat.finishTime > p.deadline ? " (Perdido)" : ""}
+                              </span>
+                            </td>
+                          )}
                           <td>{stat.arrivalTime}s</td>
                           <td>{stat.burstTime}s</td>
                           <td>{stat.finishTime}s</td>
