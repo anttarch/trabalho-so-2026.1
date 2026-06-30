@@ -30,7 +30,7 @@ const INITIAL_PROCESSES: Process[] = [
     arrivalTime: 0,
     burstTime: 5,
     priority: 3,
-    deadline: 0,
+    deadline: 12,
     color: PRESET_COLORS[0],
   },
   {
@@ -39,7 +39,7 @@ const INITIAL_PROCESSES: Process[] = [
     arrivalTime: 2,
     burstTime: 3,
     priority: 1,
-    deadline: 0,
+    deadline: 10,
     color: PRESET_COLORS[1],
   },
   {
@@ -48,7 +48,7 @@ const INITIAL_PROCESSES: Process[] = [
     arrivalTime: 4,
     burstTime: 2,
     priority: 4,
-    deadline: 0,
+    deadline: 15,
     color: PRESET_COLORS[2],
   },
   {
@@ -57,7 +57,7 @@ const INITIAL_PROCESSES: Process[] = [
     arrivalTime: 6,
     burstTime: 4,
     priority: 2,
-    deadline: 0,
+    deadline: 18,
     color: PRESET_COLORS[3],
   },
 ];
@@ -174,13 +174,15 @@ export default function App() {
       0,
     );
     const color = PRESET_COLORS[(nextIndex - 1) % PRESET_COLORS.length];
+    const arrivalTime = Math.max(0, Math.min(20, Math.floor(Math.random() * 8)));
+    const burstTime = Math.max(1, Math.min(10, Math.floor(Math.random() * 7) + 2));
     const newProc: Process = {
       id: maxId + 1,
       name: `P${nextIndex}`,
-      arrivalTime: Math.max(0, Math.min(20, Math.floor(Math.random() * 8))),
-      burstTime: Math.max(1, Math.min(10, Math.floor(Math.random() * 7) + 2)),
+      arrivalTime,
+      burstTime,
       priority: Math.floor(Math.random() * 5) + 1,
-      deadline: 0,
+      deadline: arrivalTime + burstTime + 8,
       color,
     };
     setProcesses([...processes, newProc]);
@@ -226,15 +228,21 @@ export default function App() {
 
   const handleRandomize = () => {
     const count = Math.floor(Math.random() * 3) + 4; // 4 to 6 processes
-    const randomized: Process[] = Array.from({ length: count }, (_, idx) => ({
-      id: idx + 1,
-      name: `P${idx + 1}`,
-      arrivalTime: Math.floor(Math.random() * 8),
-      burstTime: Math.floor(Math.random() * 7) + 2, // 2s to 8s
-      priority: Math.floor(Math.random() * 5) + 1, // 1 to 5
-      deadline: 0,
-      color: PRESET_COLORS[idx % PRESET_COLORS.length],
-    }));
+    const randomized: Process[] = Array.from({ length: count }, (_, idx) => {
+      const arrivalTime = Math.floor(Math.random() * 8);
+      const burstTime = Math.floor(Math.random() * 7) + 2; // 2s to 8s
+      const priority = Math.floor(Math.random() * 5) + 1; // 1 to 5
+      const deadline = arrivalTime + burstTime + Math.floor(Math.random() * 10) + 3;
+      return {
+        id: idx + 1,
+        name: `P${idx + 1}`,
+        arrivalTime,
+        burstTime,
+        priority,
+        deadline,
+        color: PRESET_COLORS[idx % PRESET_COLORS.length],
+      };
+    });
     setProcesses(randomized);
   };
 
@@ -246,7 +254,7 @@ export default function App() {
         arrivalTime: 0,
         burstTime: 6,
         priority: 3,
-        deadline: 0,
+        deadline: 12,
         color: PRESET_COLORS[0],
       },
       {
@@ -255,7 +263,7 @@ export default function App() {
         arrivalTime: 2,
         burstTime: 3,
         priority: 1,
-        deadline: 0,
+        deadline: 10,
         color: PRESET_COLORS[1],
       },
       {
@@ -264,7 +272,7 @@ export default function App() {
         arrivalTime: 4,
         burstTime: 1,
         priority: 4,
-        deadline: 0,
+        deadline: 8,
         color: PRESET_COLORS[2],
       },
       {
@@ -273,7 +281,7 @@ export default function App() {
         arrivalTime: 5,
         burstTime: 4,
         priority: 2,
-        deadline: 0,
+        deadline: 15,
         color: PRESET_COLORS[3],
       },
     ]);
@@ -292,7 +300,7 @@ export default function App() {
         arrivalTime: 0,
         burstTime: 12,
         priority: 3,
-        deadline: 0,
+        deadline: 20,
         color: PRESET_COLORS[0],
       },
       {
@@ -301,7 +309,7 @@ export default function App() {
         arrivalTime: 1,
         burstTime: 2,
         priority: 2,
-        deadline: 0,
+        deadline: 8,
         color: PRESET_COLORS[1],
       },
       {
@@ -310,7 +318,7 @@ export default function App() {
         arrivalTime: 1,
         burstTime: 2,
         priority: 1,
-        deadline: 0,
+        deadline: 10,
         color: PRESET_COLORS[2],
       },
     ]);
@@ -326,7 +334,7 @@ export default function App() {
         arrivalTime: 0,
         burstTime: 5,
         priority: 4,
-        deadline: 0,
+        deadline: 12,
         color: PRESET_COLORS[0],
       },
       {
@@ -335,7 +343,7 @@ export default function App() {
         arrivalTime: 1,
         burstTime: 4,
         priority: 2,
-        deadline: 0,
+        deadline: 10,
         color: PRESET_COLORS[1],
       },
       {
@@ -344,7 +352,7 @@ export default function App() {
         arrivalTime: 2,
         burstTime: 6,
         priority: 1,
-        deadline: 0,
+        deadline: 15,
         color: PRESET_COLORS[2],
       },
       {
@@ -353,7 +361,7 @@ export default function App() {
         arrivalTime: 3,
         burstTime: 2,
         priority: 3,
-        deadline: 0,
+        deadline: 9,
         color: PRESET_COLORS[3],
       },
     ]);
