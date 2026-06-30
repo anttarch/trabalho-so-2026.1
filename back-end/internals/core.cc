@@ -1,18 +1,24 @@
 #include <vector>
 
 #include "core.h"
+#include "../schedulers/sjf.h"
+#include "../schedulers/priority.h"
 
 void Simulator::run(const payload &p) {
   // redireciona para os diferentes algoritmos
   switch (p.algorithm) {
   case algorithms::FIFO:
     // TODO
+    break;
   case algorithms::SJF:
-    // TODO
+      SJFScheduler::run(p, &result.timeline);
+    break;
   case algorithms::RR:
     // TODO
+    break;
   case algorithms::PRIO:
-    // TODO
+    PriorityScheduler::run(p, &result.timeline);
+    break;
   case algorithms::EDF:
     // TODO
   case algorithms::CFS:
