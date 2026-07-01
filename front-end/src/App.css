@@ -1015,8 +1015,23 @@
     gap: 24px;
 }
 
+.metrics-row-4 {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 24px;
+}
+
+@media (max-width: 1024px) {
+    .metrics-row-4 {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
 @media (max-width: 768px) {
     .metrics-row {
+        grid-template-columns: 1fr;
+    }
+    .metrics-row-4 {
         grid-template-columns: 1fr;
     }
 }
