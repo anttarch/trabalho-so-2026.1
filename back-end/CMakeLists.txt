@@ -11,7 +11,11 @@ endif()
 
 project(back-end CXX)
 
-set(CMAKE_CXX_STANDARD 17)
+# Padrão em C++20 para suportar inicializadores designados (ex.: {.campo = valor}).
+# Para compilar em C++17, configure com: -DBACKEND_CXX_STANDARD=17
+set(BACKEND_CXX_STANDARD "20" CACHE STRING "C++ standard for back-end")
+set_property(CACHE BACKEND_CXX_STANDARD PROPERTY STRINGS 17 20)
+set(CMAKE_CXX_STANDARD ${BACKEND_CXX_STANDARD})
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 file(GLOB SOURCES
@@ -62,4 +66,6 @@ target_link_libraries(server PRIVATE
 
 find_package(Threads REQUIRED)
 target_link_libraries(server PRIVATE Threads::Threads)
-target_link_libraries(server PRIVATE m)
+if(UNIX)
+    target_link_libraries(server PRIVATE m)
+endif()
