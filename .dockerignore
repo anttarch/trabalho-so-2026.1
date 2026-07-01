@@ -1,0 +1,6 @@
+.git
+back-end/build
+back-end/compile_commands.json
+front-end/node_modules
+front-end/dist
+**/.DS_Store
