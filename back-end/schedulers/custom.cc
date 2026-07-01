@@ -125,6 +125,7 @@ void CustomScheduler::run(const payload &p, std::vector<int> *timeline) {
             finalizado[rodando] = true;
             processos_finalizados++;
             rodando = -1;
+            processo_anterior = -1;
             continue;
         }
 
