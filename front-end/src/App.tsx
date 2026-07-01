@@ -88,6 +88,7 @@ export default function App() {
   const [error, setError] = useState<string | null>(null);
 
   // Computed simulation values
+  const quantumBased = algorithm == algorithmType.RR || algorithm == algorithmType.CUSTOM;
   const isPreemptive = algorithm !== algorithmType.FIFO && algorithm !== algorithmType.SJF;
   const activeOverload = (isOverloadEnabled && isPreemptive) ? overloadTime : 0;
 
@@ -560,7 +561,7 @@ export default function App() {
               </select>
             </div>
 
-            {algorithm === algorithmType.RR && (
+            {quantumBased && (
               <div className="form-group slide-in">
                 <div className="label-with-val">
                   <label htmlFor="quantum-input">
