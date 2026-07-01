@@ -11,9 +11,8 @@ endif()
 
 project(back-end CXX)
 
-# Padrão em C++20 para suportar inicializadores designados (ex.: {.campo = valor}).
-# Para compilar em C++17, configure com: -DBACKEND_CXX_STANDARD=17
-set(BACKEND_CXX_STANDARD "20" CACHE STRING "C++ standard for back-end")
+# Padrão em C++20 para suportar recursos usados no código (ex.: inicializadores designados: {.campo = valor}).
+# Observação: compilar com C++17 não é suportado sem ajustar o código para remover esses recursos.
 set_property(CACHE BACKEND_CXX_STANDARD PROPERTY STRINGS 17 20)
 set(CMAKE_CXX_STANDARD ${BACKEND_CXX_STANDARD})
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
