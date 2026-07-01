@@ -5,6 +5,7 @@
 #include "../schedulers/edf.h"
 #include "../schedulers/sjf.h"
 #include "../schedulers/priority.h"
+#include "../schedulers/custom.h"
 
 #include "core.h"
 #include "handling.h"
@@ -31,7 +32,7 @@ void Simulator::run(const payload &p) {
     CFSScheduler::run(p, &result.timeline);
     break;
   case algorithms::CUSTOM:
-    // TODO
+    CustomScheduler::run(p, &result.timeline);
     break;
     // case algorithms::SAMPLE:
     //   SampleScheduler::run(p, &result.timeline);
