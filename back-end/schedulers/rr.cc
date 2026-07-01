@@ -15,7 +15,11 @@ void RRScheduler::run(const payload &p, std::vector<int> *timeline) {
 
     std::vector<process> processos = p.process_list;
     std::stable_sort(processos.begin(), processos.end(), [](const process &a, const process &b) {
-        return a.absolute_arrival_time < b.absolute_arrival_time;
+        if (a.absolute_arrival_time != b.absolute_arrival_time) {
+            return a.absolute_arrival_time < b.absolute_arrival_time;
+        }
+
+        return a.id < b.id;
     });
 
     std::vector<int> restante(quantidade_processos);
@@ -23,13 +27,39 @@ void RRScheduler::run(const payload &p, std::vector<int> *timeline) {
         restante[i] = processos[i].burst_time;
     }
 
-    std::deque<int> fila_prontos;
+    struct fila_item {
+        int indice;
+        int tempo_entrada;
+    };
+
+    std::deque<fila_item> fila_prontos;
     int idx_chegadas = 0;
     int processos_finalizados = 0;
 
+    auto inserir_na_fila = [&](int indice, int tempo_entrada) {
+        fila_item novo{indice, tempo_entrada};
+
+        auto pos = fila_prontos.begin();
+        while (pos != fila_prontos.end()) {
+            const process &atual = processos[pos->indice];
+
+            if (pos->tempo_entrada > novo.tempo_entrada) {
+                break;
+            }
+
+            if (pos->tempo_entrada == novo.tempo_entrada && atual.id > processos[novo.indice].id) {
+                break;
+            }
+
+            ++pos;
+        }
+
+        fila_prontos.insert(pos, novo);
+    };
+
     auto adicionar_chegadas = [&]() {
         while (idx_chegadas < quantidade_processos && processos[idx_chegadas].absolute_arrival_time <= tempo) {
-            fila_prontos.push_back(idx_chegadas);
+            inserir_na_fila(idx_chegadas, processos[idx_chegadas].absolute_arrival_time);
             idx_chegadas++;
         }
     };
@@ -46,7 +76,7 @@ void RRScheduler::run(const payload &p, std::vector<int> *timeline) {
             break;
         }
 
-        int atual = fila_prontos.front();
+        int atual = fila_prontos.front().indice;
         fila_prontos.pop_front();
 
         int fatia = std::min(quantum, restante[atual]);
@@ -63,7 +93,7 @@ void RRScheduler::run(const payload &p, std::vector<int> *timeline) {
                 tempo++;
             }
 
-            fila_prontos.push_back(atual);
+            inserir_na_fila(atual, tempo);
         } else {
             processos_finalizados++;
         }
