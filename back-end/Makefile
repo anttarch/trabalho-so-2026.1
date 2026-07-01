@@ -2,7 +2,7 @@ ifeq ($(OS),Windows_NT)
 ifneq ($(strip $(MSYSTEM)$(MINGW_PREFIX)),)
 BUILD_DIR = build/mingw
 CMAKE_BUILD_FLAGS =
-SERVER_BIN = $(firstword $(wildcard $(BUILD_DIR)/server.exe $(BUILD_DIR)/Debug/server.exe))
+SERVER_BIN = $(firstword $(wildcard $(BUILD_DIR)/server.exe $(BUILD_DIR)/Debug/server.exe) $(BUILD_DIR)/server.exe)
 else
 BUILD_DIR = build/msvc
 CMAKE_BUILD_FLAGS = --config Debug
