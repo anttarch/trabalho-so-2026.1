@@ -74,42 +74,7 @@ conceito de *nice value* no CFS real do Linux.
 
 ## 5. ⚠️ Limitações e bugs conhecidos
 
-Ao contrário do SJF/Priority/EDF (que já estavam consistentes), o CFS como
-está implementado tem **dois problemas reais** que vale a pena corrigir ou
-pelo menos documentar antes de usar em produção/nota:
-
-### 5.1 Chegadas simultâneas são perdidas
-
-```cpp
-if (!q.empty() && q.front()->absolute_arrival_time == time) {
-    ...
-    q.pop();
-}
-```
-
-Esse `if` verifica **apenas o primeiro** elemento da fila por tick. Se dois
-ou mais processos tiverem o **mesmo** `absolute_arrival_time`, apenas o
-primeiro é adicionado ao `vruntime` nesse tick — o segundo (e os demais com
-o mesmo horário de chegada) **nunca serão adicionados**, porque na próxima
-iteração `time` já avançou, e a condição `q.front()->absolute_arrival_time
-== time` deixa de ser verdadeira para sempre (já que `arrival_time` do
-próximo da fila continua sendo o valor antigo, menor que o novo `time`).
-Isso significa que **processos com chegada simultânea a outro processo são
-descartados silenciosamente da simulação**.
-
-**Correção sugerida:** trocar o `if` por um `while`, para tratar todos os
-processos que chegaram naquele tick, não apenas o primeiro:
-
-```cpp
-while (!q.empty() && q.front()->absolute_arrival_time == time) {
-    if (vruntime.empty()) ps = q.front();
-    _vruntime v = {.p = q.front(), .vtime = (float)time};
-    vruntime.emplace_back(v);
-    q.pop();
-}
-```
-
-### 5.2 `tempo` e o tamanho da `timeline` ficam dessincronizados no overload
+### 5.1 `tempo` e o tamanho da `timeline` ficam dessincronizados no overload
 
 ```cpp
 if (p.overload) {
@@ -149,14 +114,14 @@ ps = vruntime[0].p;
 específico, ou reestruturar o fluxo para não incrementar duas vezes —
 requer atenção ao adaptar.)
 
-### 5.3 Overload não é cobrado em transições vindas do estado ocioso
+### 5.2 Overload não é cobrado em transições vindas do estado ocioso
 
 Assim como no EDF e no Priority, quando o primeiro processo começa a rodar
 vindo de um estado sem nenhum processo em `vruntime`, não há cobrança de
 overload — isso é intencional e consistente com o restante do projeto (só
 se cobra troca de contexto entre processos, não a saída da ociosidade).
 
-## 6. Código original (como enviado)
+## 6. Código atual
 
 ```cpp
 #include "cfs.h"
@@ -198,7 +163,7 @@ void CFSScheduler::run(const payload &p, std::vector<int> *t) {
     std::vector<process>::iterator ps;
 
     while (done < p_list.size()) {
-        if (!q.empty() && q.front()->absolute_arrival_time == time) {
+        while (!q.empty() && q.front()->absolute_arrival_time == time) {
             if (vruntime.empty()) ps = q.front();
             _vruntime v = {.p = q.front(), .vtime = (float)time};
             vruntime.emplace_back(v);
@@ -282,7 +247,3 @@ break;
 
 - Depende de `absolute_arrival_time`, `burst_time` e `priority` do
   `process`, e de `overload` do `payload`.
-- Antes de usar em avaliação, recomenda-se aplicar ao menos a correção do
-  item 5.1 (chegadas simultâneas), pois ela pode causar processos
-  "sumindo" da simulação silenciosamente — um erro difícil de perceber sem
-  olhar o código.
