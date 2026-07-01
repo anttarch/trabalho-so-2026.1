@@ -88,7 +88,8 @@ export default function App() {
   const [error, setError] = useState<string | null>(null);
 
   // Computed simulation values
-  const activeOverload = isOverloadEnabled ? overloadTime : 0;
+  const isPreemptive = algorithm !== algorithmType.FIFO && algorithm !== algorithmType.SJF;
+  const activeOverload = (isOverloadEnabled && isPreemptive) ? overloadTime : 0;
 
   useEffect(() => {
     let active = true;
@@ -142,6 +143,22 @@ export default function App() {
   const avgTurnaround = simulationResult?.avgTurnaround || 0;
   const avgWaiting = simulationResult?.avgWaiting || 0;
   const avgResponse = simulationResult?.avgResponse || 0;
+  const throughput =
+    simulationResult?.throughput !== undefined
+      ? simulationResult.throughput
+      : 0;
+  const idlePercentage =
+    simulationResult?.idlePercentage !== undefined
+      ? simulationResult.idlePercentage
+      : 0;
+  const preemptions =
+    simulationResult?.preemptions !== undefined
+      ? simulationResult.preemptions
+      : 0;
+  const contextSwitches =
+    simulationResult?.contextSwitches !== undefined
+      ? simulationResult.contextSwitches
+      : 0;
 
   // Playback interval logic
   useEffect(() => {
@@ -176,8 +193,14 @@ export default function App() {
       0,
     );
     const color = PRESET_COLORS[(nextIndex - 1) % PRESET_COLORS.length];
-    const arrivalTime = Math.max(0, Math.min(20, Math.floor(Math.random() * 8)));
-    const burstTime = Math.max(1, Math.min(10, Math.floor(Math.random() * 7) + 2));
+    const arrivalTime = Math.max(
+      0,
+      Math.min(20, Math.floor(Math.random() * 8)),
+    );
+    const burstTime = Math.max(
+      1,
+      Math.min(10, Math.floor(Math.random() * 7) + 2),
+    );
     const newProc: Process = {
       id: maxId + 1,
       name: `P${nextIndex}`,
@@ -234,7 +257,8 @@ export default function App() {
       const arrivalTime = Math.floor(Math.random() * 8);
       const burstTime = Math.floor(Math.random() * 7) + 2; // 2s to 8s
       const priority = Math.floor(Math.random() * 5) + 1; // 1 to 5
-      const deadline = arrivalTime + burstTime + Math.floor(Math.random() * 10) + 3;
+      const deadline =
+        arrivalTime + burstTime + Math.floor(Math.random() * 10) + 3;
       return {
         id: idx + 1,
         name: `P${idx + 1}`,
@@ -427,7 +451,9 @@ export default function App() {
         >
           <div className="spinner" />
           <div>
-            <h3 style={{ fontSize: "14px", margin: 0 }}>Carregando simulação...</h3>
+            <h3 style={{ fontSize: "14px", margin: 0 }}>
+              Carregando simulação...
+            </h3>
             <p
               style={{
                 color: "var(--text-secondary)",
@@ -462,7 +488,13 @@ export default function App() {
               warning
             </span>
             <div>
-              <h3 style={{ color: "var(--text-primary)", fontSize: "14px", margin: 0 }}>
+              <h3
+                style={{
+                  color: "var(--text-primary)",
+                  fontSize: "14px",
+                  margin: 0,
+                }}
+              >
                 Falha na Conexão
               </h3>
               <p
@@ -552,44 +584,48 @@ export default function App() {
               </div>
             )}
 
-            <div className="form-group">
-              <div className="checkbox-container">
-                <input
-                  type="checkbox"
-                  id="overload-toggle"
-                  checked={isOverloadEnabled}
-                  onChange={(e) => {
-                    setIsOverloadEnabled(e.target.checked);
-                    setCurrentTime(0);
-                    setIsPlaying(false);
-                  }}
-                />
-                <label htmlFor="overload-toggle">
-                  Ativar Sobrecarga (Context Switch)
-                </label>
-              </div>
-            </div>
-
-            {isOverloadEnabled && (
-              <div className="form-group slide-in">
-                <div className="label-with-val">
-                  <label htmlFor="overload-input">Tempo de Sobrecarga</label>
-                  <span className="val-badge warning">{overloadTime}s</span>
+            {isPreemptive && (
+              <>
+                <div className="form-group">
+                  <div className="checkbox-container">
+                    <input
+                      type="checkbox"
+                      id="overload-toggle"
+                      checked={isOverloadEnabled}
+                      onChange={(e) => {
+                        setIsOverloadEnabled(e.target.checked);
+                        setCurrentTime(0);
+                        setIsPlaying(false);
+                      }}
+                    />
+                    <label htmlFor="overload-toggle">
+                      Ativar Sobrecarga (Context Switch)
+                    </label>
+                  </div>
                 </div>
-                <input
-                  id="overload-input"
-                  type="range"
-                  min="1"
-                  max="5"
-                  value={overloadTime}
-                  onChange={(e) => {
-                    setOverloadTime(parseInt(e.target.value, 10));
-                    setCurrentTime(0);
-                    setIsPlaying(false);
-                  }}
-                  className="range-control"
-                />
-              </div>
+
+                {isOverloadEnabled && (
+                  <div className="form-group slide-in">
+                    <div className="label-with-val">
+                      <label htmlFor="overload-input">Tempo de Sobrecarga</label>
+                      <span className="val-badge warning">{overloadTime}s</span>
+                    </div>
+                    <input
+                      id="overload-input"
+                      type="range"
+                      min="1"
+                      max="5"
+                      value={overloadTime}
+                      onChange={(e) => {
+                        setOverloadTime(parseInt(e.target.value, 10));
+                        setCurrentTime(0);
+                        setIsPlaying(false);
+                      }}
+                      className="range-control"
+                    />
+                  </div>
+                )}
+              </>
             )}
 
             <div className="preset-quick-actions">
@@ -653,7 +689,8 @@ export default function App() {
                     <th>Nome</th>
                     <th>Chegada</th>
                     <th>Execução</th>
-                    {algorithm === algorithmType.PRIO && <th>Prioridade</th>}
+                    {(algorithm === algorithmType.PRIO ||
+                      algorithm === algorithmType.CFS) && <th>Prioridade</th>}
                     {algorithm === algorithmType.EDF && <th>Deadline</th>}
                     <th>Cor</th>
                     <th></th>
@@ -695,7 +732,8 @@ export default function App() {
                           className="table-input"
                         />
                       </td>
-                      {algorithm === algorithmType.PRIO && (
+                      {(algorithm === algorithmType.PRIO ||
+                        algorithm === algorithmType.CFS) && (
                         <td>
                           <input
                             type="number"
@@ -1311,6 +1349,69 @@ export default function App() {
             </div>
           </div>
 
+          {/* GENERAL SYSTEM METRICS */}
+          <div style={{ marginTop: "24px" }}>
+            <h3
+              style={{
+                fontSize: "14px",
+                fontWeight: 600,
+                color: "var(--text-primary)",
+                textTransform: "uppercase",
+                letterSpacing: "0.05em",
+                marginBottom: "16px",
+                display: "flex",
+                alignItems: "center",
+                gap: "8px",
+              }}
+            >
+              <span
+                className="material-symbols-rounded"
+                style={{ fontSize: "20px", color: "var(--accent-primary)" }}
+              >
+                monitoring
+              </span>
+              Métricas Gerais do Sistema
+            </h3>
+
+            <div className="metrics-row-4">
+              <div className="metric-card glass">
+                <span className="metric-label">Vazão (Throughput)</span>
+                <span className="metric-value">
+                  {throughput > 0 ? `${throughput.toFixed(3)}/s` : "0/s"}
+                </span>
+                <p className="metric-desc">
+                  Processos concluídos por segundo de simulação.
+                </p>
+              </div>
+
+              <div className="metric-card glass">
+                <span className="metric-label">Ociosidade da CPU</span>
+                <span className="metric-value">
+                  {idlePercentage.toFixed(1)}%
+                </span>
+                <p className="metric-desc">
+                  Porcentagem de tempo em que a CPU ficou inativa.
+                </p>
+              </div>
+
+              <div className="metric-card glass">
+                <span className="metric-label">Total de Preempções</span>
+                <span className="metric-value">{preemptions}</span>
+                <p className="metric-desc">
+                  Número de interrupções de processos em execução.
+                </p>
+              </div>
+
+              <div className="metric-card glass">
+                <span className="metric-label">Trocas de Contexto</span>
+                <span className="metric-value">{contextSwitches}</span>
+                <p className="metric-desc">
+                  Total de alternâncias de processos ativos na CPU.
+                </p>
+              </div>
+            </div>
+          </div>
+
           {/* BOTTOM TABLES: RESULTS AND CHRONOLOGICAL LOGS */}
           <div className="bottom-dashboard-row">
             {/* STATS TABLE */}
@@ -1371,6 +1472,7 @@ export default function App() {
                                       ? "#ef4444"
                                       : "#10b981",
                                   fontWeight: "bold",
+                                  whiteSpace: "nowrap",
                                 }}
                               >
                                 {p.deadline}s

@@ -1,10 +1,13 @@
+#include <algorithm>
 #include <vector>
 
-#include "core.h"
 #include "../schedulers/cfs.h"
 #include "../schedulers/edf.h"
 #include "../schedulers/sjf.h"
 #include "../schedulers/priority.h"
+
+#include "core.h"
+#include "handling.h"
 
 void Simulator::run(const payload &p) {
   // redireciona para os diferentes algoritmos
@@ -36,11 +39,11 @@ void Simulator::run(const payload &p) {
   }
 
   if (this->result.timeline.size() > 0) {
-    this->calculate_stats(p.process_list);
+    this->calculate_stats(p.process_list, &p);
   }
 }
 
-void Simulator::calculate_stats(const std::vector<process> &vp) {
+void Simulator::calculate_stats(const std::vector<process> &vp, const payload *p) {
   std::vector<int> t = result.timeline;
 
   for (process p : vp) {
@@ -71,6 +74,52 @@ void Simulator::calculate_stats(const std::vector<process> &vp) {
                        .finish_time = finish};
     result.process_stats.emplace_back(ps);
   }
+
+  int idle = std::count(t.cbegin(), t.cend(), CPUTimeline::IDLE);
+
+  result.idle_percentage = t.size() > 0 ? (((double)idle / t.size()) * 100.0) : 0.0;
+  result.throughput = t.size() > 0 ? ((double)vp.size() / t.size()) : 0.0;
+
+  int context_switches = std::count(t.cbegin(), t.cend(), CPUTimeline::OVERLOAD);
+  result.context_switches = p->overload > 0 ? context_switches / p->overload : 0;
+
+  int preemptions = 0;
+  std::vector<int> remaining_burst(vp.size());
+  for (size_t i = 0; i < vp.size(); i++) {
+    remaining_burst[i] = vp[i].burst_time;
+  }
+
+  int prev_proc = -1;
+  for (int val : t) {
+    if (val > 0) {
+      int current_idx = -1;
+      for (size_t i = 0; i < vp.size(); i++) {
+        if (vp[i].id == val) {
+          current_idx = i;
+          break;
+        }
+      }
+
+      if (prev_proc != -1 && val != prev_proc) {
+        int prev_idx = -1;
+        for (size_t i = 0; i < vp.size(); i++) {
+          if (vp[i].id == prev_proc) {
+            prev_idx = i;
+            break;
+          }
+        }
+        if (prev_idx != -1 && remaining_burst[prev_idx] > 0) {
+          preemptions++;
+        }
+      }
+
+      if (current_idx != -1 && remaining_burst[current_idx] > 0) {
+        remaining_burst[current_idx]--;
+      }
+      prev_proc = val;
+    }
+  }
+  result.preemptions = preemptions;
 }
 
 ordered_json __stat_to_json(process_stat &ps) {
@@ -97,6 +146,10 @@ ordered_json Simulator::process_result() {
   }
 
   j["processStats"] = v;
+  j["throughput"] = this->result.throughput;
+  j["idlePercentage"] = this->result.idle_percentage;
+  j["preemptions"] = this->result.preemptions;
+  j["contextSwitches"] = this->result.context_switches;
 
   return j;
 }

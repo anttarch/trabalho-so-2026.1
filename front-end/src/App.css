@@ -739,6 +739,7 @@
 
 .gantt-scroll-container {
     overflow-x: auto;
+    overflow-y: hidden;
     padding-bottom: 12px;
     position: relative;
 }
@@ -769,6 +770,9 @@
     background: var(--bg-secondary);
     border-radius: 6px 0 0 6px;
     height: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .gantt-row-cells {
@@ -928,7 +932,7 @@
 /* Gantt Playhead line */
 .gantt-playhead {
     position: absolute;
-    top: 0;
+    top: 42px;
     bottom: 0;
     width: 2px;
     background: var(--accent-danger);
@@ -941,7 +945,7 @@
 /* Gantt Deadline line */
 .gantt-deadline-line {
     position: absolute;
-    top: 0;
+    top: 42px;
     bottom: 0;
     width: 2px;
     z-index: 4;
@@ -950,7 +954,7 @@
 
 .gantt-deadline-label {
     position: absolute;
-    top: 24px;
+    top: 8px;
     transform: translateX(-50%);
     font-size: 9px;
     font-family: var(--font-sans);
@@ -1011,8 +1015,23 @@
     gap: 24px;
 }
 
+.metrics-row-4 {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 24px;
+}
+
+@media (max-width: 1024px) {
+    .metrics-row-4 {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
 @media (max-width: 768px) {
     .metrics-row {
+        grid-template-columns: 1fr;
+    }
+    .metrics-row-4 {
         grid-template-columns: 1fr;
     }
 }

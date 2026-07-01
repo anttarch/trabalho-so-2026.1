@@ -43,6 +43,10 @@ export interface SimulationResult {
   avgTurnaround: number;
   avgWaiting: number;
   avgResponse: number;
+  throughput?: number;
+  idlePercentage?: number;
+  preemptions?: number;
+  contextSwitches?: number;
 }
 
 /**
@@ -429,5 +433,15 @@ export async function fetchSimulationFromExternal(
     avgTurnaround: Number(avgTurnaround.toFixed(2)),
     avgWaiting: Number(avgWaiting.toFixed(2)),
     avgResponse: Number(avgResponse.toFixed(2)),
+    throughput:
+      typeof data.throughput === "number" ? data.throughput : undefined,
+    idlePercentage:
+      typeof data.idlePercentage === "number" ? data.idlePercentage : undefined,
+    preemptions:
+      typeof data.preemptions === "number" ? data.preemptions : undefined,
+    contextSwitches:
+      typeof data.contextSwitches === "number"
+        ? data.contextSwitches
+        : undefined,
   };
 }
