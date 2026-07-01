@@ -1,10 +1,12 @@
 #include <algorithm>
 #include <vector>
 
-#include "../schedulers/cfs.h"
-#include "../schedulers/edf.h"
+#include "core.h"
+#include "../schedulers/fifo.h"
 #include "../schedulers/sjf.h"
 #include "../schedulers/priority.h"
+#include "../schedulers/edf.h"
+#include "../schedulers/cfs.h"
 #include "../schedulers/custom.h"
 
 #include "core.h"
@@ -14,7 +16,7 @@ void Simulator::run(const payload &p) {
   // redireciona para os diferentes algoritmos
   switch (p.algorithm) {
   case algorithms::FIFO:
-    // TODO
+    FIFOScheduler::run(p, &result.timeline);
     break;
   case algorithms::SJF:
       SJFScheduler::run(p, &result.timeline);
