@@ -10,22 +10,23 @@ void EDFScheduler::run(const payload &p, std::vector<int> *timeline) {
         tempo_restante[i] = p.process_list[i].burst_time;
     }
 
-    std::vector<bool> finalizado(quantidade_processos, false); //coloca na lista que nenhum dos processos terminou
-    int processos_finalizados = 0; //variável pra contar os processos finalizados
+    std::vector<bool> finalizado(quantidade_processos, false); //nenhum processo terminou ainda
+    int processos_finalizados = 0; //contador de processos finalizados
+    int processo_anterior = -1; //índice do processo que rodou no tick anterior (-1 = nenhum ainda)
 
     while (processos_finalizados < quantidade_processos) { //enquanto tiverem processos não finalizados
-        int escolhido = -1; //inicialização, nenhum processo foi escolhido ainda
+        int escolhido = -1; //nenhum processo escolhido ainda
 
-        for (int i = 0; i < quantidade_processos; i++) { //percorre todos os processos em busca do menor deadline
-            if (finalizado[i]) { //se o processo tiver finalizado, pula
+        for (int i = 0; i < quantidade_processos; i++) { //busca o processo com menor deadline
+            if (finalizado[i]) {
                 continue;
             }
-            if (p.process_list[i].absolute_arrival_time > tempo) { //se o processo ainda não chegou, pula
+            if (p.process_list[i].absolute_arrival_time > tempo) {
                 continue;
             }
-            if (escolhido == -1) { //se nenhum processo foi escolhido ainda, escolhe o primeiro que chegou
+            if (escolhido == -1) {
                 escolhido = i;
-            } else if (p.process_list[i].absolute_deadline < p.process_list[escolhido].absolute_deadline) { //compara deadlines
+            } else if (p.process_list[i].absolute_deadline < p.process_list[escolhido].absolute_deadline) {
                 escolhido = i;
             }
         }
@@ -34,17 +35,28 @@ void EDFScheduler::run(const payload &p, std::vector<int> *timeline) {
         if (escolhido == -1) {
             timeline->push_back(CPUTimeline::IDLE);
             tempo++;
+            processo_anterior = -1; //zera o "processo anterior", pois a CPU ficou ociosa
             continue;
         }
 
+        //se houve troca de processo em execução, cobra o tempo de sobrecarga
+        if (processo_anterior != -1 && processo_anterior != escolhido && p.overload > 0) {
+            for (int i = 0; i < p.overload; i++) {
+                timeline->push_back(CPUTimeline::OVERLOAD);
+                tempo++;
+            }
+        }
+
         //executa o processo escolhido por apenas 1 unidade de tempo (preempção)
-        timeline->push_back(p.process_list[escolhido].id); //coloca o id do processo na timeline
+        timeline->push_back(p.process_list[escolhido].id);
         tempo_restante[escolhido]--;
         tempo++;
+        processo_anterior = escolhido; //atualiza o processo que rodou por último
 
-        if (tempo_restante[escolhido] == 0) { //se o processo terminou sua execução
-            finalizado[escolhido] = true; //muda o status para finalizado
-            processos_finalizados++; //incrementa a quantidade de processos finalizados
+        if (tempo_restante[escolhido] == 0) { //processo terminou
+            finalizado[escolhido] = true;
+            processos_finalizados++;
+            processo_anterior = -1; //processo terminou, próxima escolha conta como "nova troca"
         }
     }
 }
