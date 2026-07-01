@@ -33,8 +33,8 @@ void RRScheduler::run(const payload &p, std::vector<int> *timeline) {
         int tempo_entrada;
     };
 
-    // A fila guarda o instante em que cada processo entrou para manter a ordem correta
-    // quando vários processos chegam no mesmo tempo.
+    // A fila guarda o instante em que cada processo entrou para definir uma ordem determinística
+    // (tempo de entrada e, em caso de empate, menor ID).
     std::deque<fila_item> fila_prontos;
     int idx_chegadas = 0;
     int processos_finalizados = 0;
