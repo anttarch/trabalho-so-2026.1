@@ -33,7 +33,7 @@ void CFSScheduler::run(const payload &p, std::vector<int> *t) {
 
     // fila auxiliar para a simular a entrada dos processos
     std::queue<std::vector<process>::iterator> q;
-    for (auto it = p_list.begin(); it < p_list.end(); it++) q.push(it);
+    for (auto it = p_list.begin(); it != p_list.end(); it++) q.push(it);
 
     // vetor com os dados do vruntime
     std::vector<_vruntime> vruntime;
@@ -82,7 +82,7 @@ void CFSScheduler::run(const payload &p, std::vector<int> *t) {
                 // id do processo na timeline
                 timeline.emplace_back(ps->id);
 
-                for (auto it = vruntime.begin(); it < vruntime.end(); it++) {
+                for (auto it = vruntime.begin(); it != vruntime.end(); it++) {
                     if (it->p->id == ps->id) {
                         // aumentar vruntime
                         it->vtime += std::pow(1.25, ps->priority-1);
