@@ -43,3 +43,4 @@ target_link_libraries(server PRIVATE
 
 find_package(Threads REQUIRED)
 target_link_libraries(server PRIVATE Threads::Threads)
+target_link_libraries(server PRIVATE m)
