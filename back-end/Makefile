@@ -6,7 +6,7 @@ SERVER_BIN = $(firstword $(wildcard $(BUILD_DIR)/server.exe $(BUILD_DIR)/Debug/s
 else
 BUILD_DIR = build/msvc
 CMAKE_BUILD_FLAGS = --config Debug
-SERVER_BIN = $(firstword $(wildcard $(BUILD_DIR)/Debug/server.exe $(BUILD_DIR)/server.exe))
+SERVER_BIN = $(firstword $(wildcard $(BUILD_DIR)/Debug/server.exe $(BUILD_DIR)/server.exe) $(BUILD_DIR)/Debug/server.exe)
 endif
 else
 BUILD_DIR = build/linux
