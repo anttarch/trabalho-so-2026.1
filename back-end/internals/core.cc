@@ -1,10 +1,12 @@
 #include <algorithm>
 #include <vector>
 
-#include "../schedulers/cfs.h"
-#include "../schedulers/edf.h"
+#include "core.h"
+#include "../schedulers/fifo.h"
 #include "../schedulers/sjf.h"
 #include "../schedulers/priority.h"
+#include "../schedulers/edf.h"
+#include "../schedulers/cfs.h"
 #include "../schedulers/custom.h"
 
 #include "core.h"
@@ -14,7 +16,7 @@ void Simulator::run(const payload &p) {
   // redireciona para os diferentes algoritmos
   switch (p.algorithm) {
   case algorithms::FIFO:
-    // TODO
+    FIFOScheduler::run(p, &result.timeline);
     break;
   case algorithms::SJF:
       SJFScheduler::run(p, &result.timeline);
@@ -68,11 +70,12 @@ void Simulator::calculate_stats(const std::vector<process> &vp, const payload *p
     int ta = finish - p.absolute_arrival_time;
     int r = firstExecution - p.absolute_arrival_time;
 
-    process_stat ps = {.id = p.id,
-                       .waiting_time = w,
-                       .turnaround_time = ta,
-                       .response_time = r,
-                       .finish_time = finish};
+    process_stat ps;
+    ps.id = p.id;
+    ps.waiting_time = w;
+    ps.turnaround_time = ta;
+    ps.response_time = r;
+    ps.finish_time = finish;
     result.process_stats.emplace_back(ps);
   }
 
