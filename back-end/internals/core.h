@@ -13,13 +13,17 @@ using json = nlohmann::json;
 typedef struct {
   std::vector<int> timeline;
   std::vector<process_stat> process_stats;
+  double throughput;
+  double idle_percentage;
+  int preemptions;
+  int context_switches;
 } simulation_result;
 
 class Simulator {
 private:
   simulation_result result;
 
-  void calculate_stats(const std::vector<process> &process_list);
+  void calculate_stats(const std::vector<process> &process_list, const payload *p);
 
 public:
   // redireciona para o algoritmo certo
