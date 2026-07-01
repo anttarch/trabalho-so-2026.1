@@ -1,10 +1,13 @@
 cmake_minimum_required(VERSION 3.15)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-file(CREATE_LINK
-    "${CMAKE_BINARY_DIR}/compile_commands.json"
-    "${CMAKE_SOURCE_DIR}/compile_commands.json"
-    SYMBOLIC
-)
+
+if(NOT WIN32)
+    file(CREATE_LINK
+        "${CMAKE_BINARY_DIR}/compile_commands.json"
+        "${CMAKE_SOURCE_DIR}/compile_commands.json"
+        SYMBOLIC
+    )
+endif()
 
 project(back-end CXX)
 
@@ -17,8 +20,24 @@ file(GLOB SOURCES
 )
 
 add_executable(server server.cc ${SOURCES})
+set_target_properties(server PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}"
+)
 
 include(FetchContent)
+
+# O Visual Studio não deve absorver headers/libs do MSYS2, porque isso mistura
+# o runtime do MinGW com o toolchain do MSVC e quebra a compilação no Windows.
+if(WIN32)
+    set(HTTPLIB_USE_ZSTD_IF_AVAILABLE OFF CACHE BOOL "" FORCE)
+    set(HTTPLIB_REQUIRE_ZSTD OFF CACHE BOOL "" FORCE)
+endif()
+
+# O build com MinGW no Windows não expõe GetAddrInfoExCancel de forma confiável,
+# então o caminho non-blocking do httplib precisa ficar desligado nesse caso.
+if(MINGW)
+    set(HTTPLIB_USE_NON_BLOCKING_GETADDRINFO OFF CACHE BOOL "" FORCE)
+endif()
 
 FetchContent_Declare(
     httplib

@@ -9,17 +9,20 @@
 
 using json = nlohmann::json;
 
+static void add_cors_headers(httplib::Response &res) {
+  res.set_header("Access-Control-Allow-Origin", "*");
+  res.set_header("Access-Control-Allow-Methods", "POST, OPTIONS");
+  res.set_header("Access-Control-Allow-Headers", "Accept, Content-Type, Authorization");
+  res.set_header("Access-Control-Max-Age", "86400");
+}
+
 int main() {
   httplib::Server server;
 
-  server.set_post_routing_handler(
-      [](const httplib::Request &req, httplib::Response &res) {
-        res.set_header("Access-Control-Allow-Origin", "*");
-        res.set_header("Access-Control-Allow-Methods", "POST, OPTIONS");
-        res.set_header("Access-Control-Allow-Headers", "Accept, Content-Type");
-      });
-
-  server.Options("/.*", [](const auto &req, auto &res) { res.status = 204; });
+  server.Options("/.*", [](const auto &req, auto &res) {
+    add_cors_headers(res);
+    res.status = 204;
+  });
 
   server.set_pre_routing_handler([](const auto &req, auto &res) {
     res.user_data.set("start", std::chrono::steady_clock::now());
@@ -39,6 +42,7 @@ int main() {
   server.Post(
       "/simulate", [](const httplib::Request &req, httplib::Response &res) {
         try {
+          add_cors_headers(res);
           auto in = json::parse(req.body);
           payload p = payload_from_json(in);
 
@@ -50,6 +54,7 @@ int main() {
           res.status = 201;
           res.set_content(out.dump(), "application/json");
         } catch (const std::exception &e) {
+          add_cors_headers(res);
           res.status = 400;
           res.set_content("{\"error\":\"invalid json\"}", "application/json");
         }
