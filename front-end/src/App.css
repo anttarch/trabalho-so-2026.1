@@ -932,7 +932,7 @@
 /* Gantt Playhead line */
 .gantt-playhead {
     position: absolute;
-    top: 0;
+    top: 42px;
     bottom: 0;
     width: 2px;
     background: var(--accent-danger);
@@ -945,7 +945,7 @@
 /* Gantt Deadline line */
 .gantt-deadline-line {
     position: absolute;
-    top: 0;
+    top: 42px;
     bottom: 0;
     width: 2px;
     z-index: 4;
@@ -954,7 +954,7 @@
 
 .gantt-deadline-label {
     position: absolute;
-    top: 24px;
+    top: 8px;
     transform: translateX(-50%);
     font-size: 9px;
     font-family: var(--font-sans);
