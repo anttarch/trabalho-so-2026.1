@@ -88,7 +88,8 @@ export default function App() {
   const [error, setError] = useState<string | null>(null);
 
   // Computed simulation values
-  const activeOverload = isOverloadEnabled ? overloadTime : 0;
+  const isPreemptive = algorithm !== algorithmType.FIFO && algorithm !== algorithmType.SJF;
+  const activeOverload = (isOverloadEnabled && isPreemptive) ? overloadTime : 0;
 
   useEffect(() => {
     let active = true;
@@ -583,44 +584,48 @@ export default function App() {
               </div>
             )}
 
-            <div className="form-group">
-              <div className="checkbox-container">
-                <input
-                  type="checkbox"
-                  id="overload-toggle"
-                  checked={isOverloadEnabled}
-                  onChange={(e) => {
-                    setIsOverloadEnabled(e.target.checked);
-                    setCurrentTime(0);
-                    setIsPlaying(false);
-                  }}
-                />
-                <label htmlFor="overload-toggle">
-                  Ativar Sobrecarga (Context Switch)
-                </label>
-              </div>
-            </div>
-
-            {isOverloadEnabled && (
-              <div className="form-group slide-in">
-                <div className="label-with-val">
-                  <label htmlFor="overload-input">Tempo de Sobrecarga</label>
-                  <span className="val-badge warning">{overloadTime}s</span>
+            {isPreemptive && (
+              <>
+                <div className="form-group">
+                  <div className="checkbox-container">
+                    <input
+                      type="checkbox"
+                      id="overload-toggle"
+                      checked={isOverloadEnabled}
+                      onChange={(e) => {
+                        setIsOverloadEnabled(e.target.checked);
+                        setCurrentTime(0);
+                        setIsPlaying(false);
+                      }}
+                    />
+                    <label htmlFor="overload-toggle">
+                      Ativar Sobrecarga (Context Switch)
+                    </label>
+                  </div>
                 </div>
-                <input
-                  id="overload-input"
-                  type="range"
-                  min="1"
-                  max="5"
-                  value={overloadTime}
-                  onChange={(e) => {
-                    setOverloadTime(parseInt(e.target.value, 10));
-                    setCurrentTime(0);
-                    setIsPlaying(false);
-                  }}
-                  className="range-control"
-                />
-              </div>
+
+                {isOverloadEnabled && (
+                  <div className="form-group slide-in">
+                    <div className="label-with-val">
+                      <label htmlFor="overload-input">Tempo de Sobrecarga</label>
+                      <span className="val-badge warning">{overloadTime}s</span>
+                    </div>
+                    <input
+                      id="overload-input"
+                      type="range"
+                      min="1"
+                      max="5"
+                      value={overloadTime}
+                      onChange={(e) => {
+                        setOverloadTime(parseInt(e.target.value, 10));
+                        setCurrentTime(0);
+                        setIsPlaying(false);
+                      }}
+                      className="range-control"
+                    />
+                  </div>
+                )}
+              </>
             )}
 
             <div className="preset-quick-actions">
