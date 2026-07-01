@@ -63,7 +63,9 @@ const INITIAL_PROCESSES: Process[] = [
 ];
 
 export default function App() {
-  const apiUrl = "http://localhost:8080/simulate";
+  const apiUrl = import.meta.env.DEV
+    ? "http://localhost:8080/simulate"
+    : "/simulate";
 
   // Simulator Configurations
   const [processes, setProcesses] = useState<Process[]>(INITIAL_PROCESSES);

@@ -3,6 +3,7 @@
 #include "core.h"
 #include "../schedulers/sjf.h"
 #include "../schedulers/priority.h"
+#include "../schedulers/edf.h"
 
 void Simulator::run(const payload &p) {
   // redireciona para os diferentes algoritmos
@@ -20,7 +21,8 @@ void Simulator::run(const payload &p) {
     PriorityScheduler::run(p, &result.timeline);
     break;
   case algorithms::EDF:
-    // TODO
+    EDFScheduler::run(p, &result.timeline);
+    break;
   case algorithms::CFS:
     // TODO
   case algorithms::CUSTOM:

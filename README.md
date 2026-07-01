@@ -50,3 +50,15 @@ Utilize o **npm** para gerenciar os pacotes e rodar a aplicação:
   ```bash
   npm run build
   ```
+
+---
+
+## 🐳 Rodando com Docker
+
+Na raiz do projeto, suba o app com Docker Compose:
+
+```bash
+docker compose up --build
+```
+
+O front-end ficará disponível em `http://localhost:80` e a API em `http://localhost:8080`.
