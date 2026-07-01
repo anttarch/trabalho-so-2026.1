@@ -46,7 +46,7 @@ void CFSScheduler::run(const payload &p, std::vector<int> *t) {
     while (done < p_list.size()) {
 
         // adiciona um processo novo a lógica do vruntime
-        if (!q.empty() && q.front()->absolute_arrival_time == time) {
+        while (!q.empty() && q.front()->absolute_arrival_time == time) {
             // se ainda não haver processo rodando, inicia a fila com o processo que chegou
             if (vruntime.empty()) ps = q.front();
 
