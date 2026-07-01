@@ -653,7 +653,7 @@ export default function App() {
                     <th>Nome</th>
                     <th>Chegada</th>
                     <th>Execução</th>
-                    {algorithm === algorithmType.PRIO && <th>Prioridade</th>}
+                    {(algorithm === algorithmType.PRIO || algorithm === algorithmType.CFS) && <th>Prioridade</th>}
                     {algorithm === algorithmType.EDF && <th>Deadline</th>}
                     <th>Cor</th>
                     <th></th>
@@ -695,7 +695,7 @@ export default function App() {
                           className="table-input"
                         />
                       </td>
-                      {algorithm === algorithmType.PRIO && (
+                      {(algorithm === algorithmType.PRIO || algorithm === algorithmType.CFS) && (
                         <td>
                           <input
                             type="number"
@@ -1371,6 +1371,7 @@ export default function App() {
                                       ? "#ef4444"
                                       : "#10b981",
                                   fontWeight: "bold",
+                                  whiteSpace: "nowrap",
                                 }}
                               >
                                 {p.deadline}s
