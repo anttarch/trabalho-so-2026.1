@@ -85,7 +85,7 @@ void CFSScheduler::run(const payload &p, std::vector<int> *t) {
                 for (auto it = vruntime.begin(); it < vruntime.end(); it++) {
                     if (it->p->id == ps->id) {
                         // aumentar vruntime
-                        it->vtime += std::powf(1.25, ps->priority-1);
+                        it->vtime += std::pow(1.25, ps->priority-1);
 
                         // processo acabou
                         if (!ps->burst_time) {
