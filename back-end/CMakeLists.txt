@@ -13,6 +13,7 @@ project(back-end CXX)
 
 # Padrão em C++20 para suportar recursos usados no código (ex.: inicializadores designados: {.campo = valor}).
 # Observação: compilar com C++17 não é suportado sem ajustar o código para remover esses recursos.
+set(BACKEND_CXX_STANDARD 20 CACHE STRING "C++ standard used to build the backend")
 set_property(CACHE BACKEND_CXX_STANDARD PROPERTY STRINGS 17 20)
 set(CMAKE_CXX_STANDARD ${BACKEND_CXX_STANDARD})
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
